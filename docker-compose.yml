@@ -11,27 +11,73 @@ services:
       POI_INDEX_URL: http://poi:3000
       CAD_INDEX_URL: http://cadastre:3000
       REDIS_URL: redis://redis:6379
-      STORAGE_FS_DIR: /app/storage/
+      STORAGE_FS_DIR: /data
       MAGIC_TOKEN: "12345"
     volumes:
-      - shared-storage:/app/storage
+      - data:/data
   redis:
     image: redis:7-alpine
+  builddata:
+    build: .
+    command: bash -c "python /app/indexes/nc_build_all/index.py"
+    environment:
+      DEPARTEMENTS: 988
+      BAN_ADDOK_URL: https://adresse.data.gouv.fr/data/ban/adresses/latest/addok/adresses-addok-{dep}.ndjson.gz
+      ADDRESS_INDEX_MDB_BASE_PATH: ./data/adresses/mbd_index
+      ADDRESS_INDEX_PATH: ./data/adresses/index
+      POI_INDEX_MDB_BASE_PATH: ./data/poi/mbd_index
+      POI_INDEX_PATH: ./data/poi/index
+      BDLOC_FEATURE_SERVICE_LAYER: https://services1.arcgis.com/TZcrgU6CIbqWt9Qv/ArcGIS/rest/services/BDLOC/FeatureServer/13
+      CAD_INDEX_MDB_BASE_PATH: ./data/cadastre/mbd_index
+      CAD_INDEX_PATH: ./data/cadastre/index
+      NC_CADASTRE_FEATURE_SERVICE_LAYER: https://services1.arcgis.com/TZcrgU6CIbqWt9Qv/arcgis/rest/services/cadastre_centroide/FeatureServer/0
+      STORAGE_FS_DIR: /data
+      MAGIC_TOKEN: "12345"
+    healthcheck:
+      test:  bash -c "test -f /data/address/index/dump.rdb && test -f /data/poi/index/dump.rdb && test -f /data/cadastre/index/dump.rdb"
+      interval: 5s
+      timeout: 1s
+      retries: 60
+    volumes:
+      - ./data:/data
   address:
     build: .
-    command: bash -c "yarn address:download-index && yarn address:start"
+    command: bash -c "yarn address:start"
+    depends_on:
+      builddata:
+        condition: service_healthy
     environment:
-      ADDRESS_ARCHIVE_URL: https://magisdemo.s3.ap-southeast-2.amazonaws.com/dinum-adressage/address.tgz
+      ADDRESS_INDEX_MDB_BASE_PATH: ./data/adresses/mbd_index
+      ADDRESS_INDEX_PATH: ./data/adresses/index
+      STORAGE_FS_DIR: /data
+      MAGIC_TOKEN: "12345"
+    volumes:
+      - ./data:/data
   poi:
     build: .
-    command: bash -c "yarn poi:download-index && yarn poi:start"
+    command: bash -c "yarn poi:start"
+    depends_on:
+      builddata:
+        condition: service_healthy
     environment:
-      POI_ARCHIVE_URL: https://magisdemo.s3.ap-southeast-2.amazonaws.com/dinum-adressage/poi.tgz
+      POI_INDEX_MDB_BASE_PATH: ./data/poi/mbd_index
+      POI_INDEX_PATH: ./data/poi/index
+      STORAGE_FS_DIR: /data
+      MAGIC_TOKEN: "12345"
+    volumes:
+      - ./data:/data
   cadastre:
     build: .
-    command: bash -c "yarn cadastre:download-index && yarn cadastre:start"
+    command: bash -c "yarn cadastre:start"
+    depends_on:
+      builddata:
+        condition: service_healthy
     environment:
-      CAD_ARCHIVE_URL: https://magisdemo.s3.ap-southeast-2.amazonaws.com/dinum-adressage/cadastre.tgz
-
+      CAD_INDEX_MDB_BASE_PATH: ./data/cadastre/mbd_index
+      CAD_INDEX_PATH: ./data/cadastre/index
+      STORAGE_FS_DIR: /data
+      MAGIC_TOKEN: "12345"
+    volumes:
+      - ./data:/data
 volumes:
-  shared-storage:
+  data:

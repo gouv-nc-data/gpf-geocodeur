@@ -199,3 +199,4 @@ storage
 # intellij
 .idea*
 *.iml
+indexes/nc_build_all/__pycache__
