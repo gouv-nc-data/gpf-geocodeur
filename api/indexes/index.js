@@ -1,12 +1,10 @@
 import createAddressIndex from './address.js'
 import createPoiIndex from './poi.js'
-import createParcelIndex from './parcel.js'
 import createCadIndex from './cadastre.js'
 
 const INDEX_CONSTRUCTORS = {
   address: createAddressIndex,
   poi: createPoiIndex,
-  //parcel: createParcelIndex,
   cadastre: createCadIndex
 }
 

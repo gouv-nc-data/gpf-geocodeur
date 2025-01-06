@@ -23,12 +23,14 @@ Des profiles sont présent dans le docker compose permettant de lancer :
 - api : uniquement les services d'API (redis, api et 3 sous-api)
 NB : pour que les services d'API fonctionne, il faut que le build ait été lancé et achevé au moins une fois. En effet, chaque sous-api charge ses index pré-buildés par le service de build dans /data/{type}/index (redis, lmdb et rtree)
 
+## Documentation spécifique NC
+
+- [doc NC](docs/index-nc.md)
+
 ## Démarrage rapide (Docker)
 
 ```bash
-docker compose -f docker-compose.yml --profile all up
-docker compose -f docker-compose.yml --profile build up
-docker compose -f docker-compose.yml --profile api up
+docker compose -f docker-compose-v3.yml up
 ```
 
 
@@ -39,7 +41,9 @@ docker compose -f docker-compose.yml --profile api up
 ## Démarrage rapide (Docker)
 
 ```bash
-docker compose -f docker-compose-quickstart.yml up
+docker compose -f docker-compose.yml --profile all up
+docker compose -f docker-compose.yml --profile build up
+docker compose -f docker-compose.yml --profile api up
 ```
 
 Le géocodeur sera lancé sur les données du département de la Moselle en quelques minutes, et sera accessible à l'adresse <http://localhost:3000>.

@@ -5,9 +5,6 @@ info:
   contact:
     email: contact.geoservices@ign.fr
   version: 2.0.0
-  license:
-    name: Licence ouverte 2.0
-    url: https://www.etalab.gouv.fr/licence-ouverte-open-licence
 servers:
   - url: $API_URL
 tags:
@@ -17,10 +14,6 @@ tags:
     description: Géocodage direct
   - name: reverse
     description: Géocodage inverse
-  - name: batch
-    description: Géocodage par lot
-  - name: batch-async
-    description: Géocodage par lot asynchrone
 paths:
   /getCapabilities:
     get:
@@ -61,7 +54,7 @@ paths:
           in: query
           description: "index(es) de recherche :<br>
             - <b>address</b> pour la recherche par adresse<br>
-            - <b>cadastre</b> pour la recherche par centroide de parcelle cadastrale<br>
+            - <b>cadastre</b> pour la recherche par centroide de Cadastrele cadastrale<br>
             - <b>poi</b> pour la recherche par lieu et unité administrative<br>
 
             Il est possible de spécifier plusieurs indexes séparés par une virgule.
@@ -101,7 +94,7 @@ paths:
             $ref: "#/components/schemas/PostalCode"
         - name: citycode
           in: query
-          description: "Filtre pour les index address et poi. Il permet de filtrer les résultats par code INSEE."
+          description: "Filtre pour les index address, cadastre et poi. Il permet de filtrer les résultats par code INSEE."
           schema:
             $ref: "#/components/schemas/InseeCode"
         - name: type
@@ -194,13 +187,13 @@ paths:
           in: query
           description: "index de recherche :<br>
             - <b>address</b> pour la recherche par adresse<br>
-            - <b>cadastre</b> pour la recherche de centroide de parcelle cadastrale<br>
+            - <b>cadastre</b> pour la recherche de centroide de Cadastrele cadastrale<br>
             - <b>poi</b> pour la recherche par lieu et unité administrative<br>
 
             Il est possible de spécifier plusieurs indexes séparés par une virgule.
 
             Exemples:
-            - /search?index=parcel
+            - /search?index=Cadastre
             - /search?index=poi,address"
           required: false
           schema:
@@ -264,219 +257,6 @@ paths:
           description: "Parse query failed"
           content:
             application/json: {}
-
-  /search/csv:
-    post:
-      tags:
-        - search
-        - batch
-      summary: Géocodage direct en masse d’un fichier CSV
-      operationId: searchCsv
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required:
-                - data
-              properties:
-                data:
-                  type: string
-                  format: binary
-                  description: "Fichier CSV contenant les lignes à géocoder"
-                columns:
-                  type: array
-                  items:
-                    type: string
-                  description: "Liste des colonnes du fichier CSV à utiliser pour le géocodage"
-                indexes:
-                  type: array
-                  items:
-                    type: string
-                  description: "Liste des index à utiliser pour le géocodage"
-                type:
-                  type: string
-                  description: "Colonne contenant le type d’objet accepté pour le géocodage de la ligne (address)"
-                citycode:
-                  type: string
-                  description: "Colonne contenant le code INSEE de la commune à utiliser comme filtre (address, poi)"
-                postcode:
-                  type: string
-                  description: "Colonne contenant le code postal à utiliser comme filtre (address, poi)"
-                category:
-                  type: string
-                  description: "Colonne contenant la catégorie de POI à utiliser comme filtre (poi)"
-                lon:
-                  type: string
-                  description: "Colonne contenant la longitude du point de recherche"
-                lat:
-                  type: string
-                  description: "Colonne contenant la latitude du point de recherche"
-                result_columns:
-                  type: array
-                  items:
-                    type: string
-                  description: "Liste des colonnes de type résultat à conserver dans le fichier CSV de sortie"
-            encoding:
-              columns:
-                style: form
-                explode: true
-              result_columns:
-                style: form
-                explode: true
-              indexes:
-                style: form
-                explode: true
-      responses:
-        "200":
-          description: Géocodage réussi
-          content:
-            text/csv:
-              schema:
-                type: string
-                format: binary
-                description: |
-                  Fichier CSV contenant les lignes géocodées. Les colonnes ajoutées sont :<br>
-                  - latitude<br>
-                  - longitude<br>
-                  - result_label<br>
-                  - result_score<br>
-                  - result_score_next<br>
-                  - result_type (address)<br>
-                  - result_id<br>
-                  - result_housenumber (address)<br>
-                  - result_name (address)<br>
-                  - result_street (address)<br>
-                  - result_postcode (address, poi)<br>
-                  - result_city (address, poi)<br>
-                  - result_context<br>
-                  - result_citycode (address, poi)<br>
-                  - result_district (address, poi)<br>
-                  - result_category (poi)<br>
-                  - result_index : index dans lequel l'objet a été trouvé<br>
-                  - result_status (ok = trouvé, not-found = non trouvé, skipped = ligne ignorée en raison de paramètres manquants ou invalides, error = erreur du serveur lors de la recherche)<br><br>
-                  NB : En cas de colonnes d'origine nommées latitude ou longitude, elles seront écrasées par les valeurs calculées.
-
-        "400":
-          description: "Échec du géocodage suite à une erreur dans la requête"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: "Message d'erreur"
-                    example: "Erreur lors de la lecture du fichier CSV"
-
-  /reverse/csv:
-    post:
-      tags:
-        - reverse
-        - batch
-      summary: Géocodage inversé en masse d’un fichier CSV
-      operationId: reverseCsv
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required:
-                - data
-              properties:
-                data:
-                  type: string
-                  format: binary
-                  description: "Fichier CSV contenant les lignes à géocoder"
-                columns:
-                  type: array
-                  items:
-                    type: string
-                  description: "Liste des colonnes du fichier CSV à utiliser pour le géocodage"
-                indexes:
-                  type: array
-                  items:
-                    type: string
-                  description: "Liste des index à utiliser pour le géocodage"
-                type:
-                  type: string
-                  description: "Colonne contenant le type d’objet accepté pour le géocodage de la ligne (address)"
-                citycode:
-                  type: string
-                  description: "Colonne contenant le code INSEE de la commune à utiliser comme filtre (address, poi)"
-                postcode:
-                  type: string
-                  description: "Colonne contenant le code postal à utiliser comme filtre (address, poi)"
-                category:
-                  type: string
-                  description: "Colonne contenant la catégorie de POI à utiliser comme filtre (poi)"
-                lon:
-                  type: string
-                  description: "Colonne contenant la longitude du point de recherche"
-                lat:
-                  type: string
-                  description: "Colonne contenant la latitude du point de recherche"
-                result_columns:
-                  type: array
-                  items:
-                    type: string
-                  description: "Liste des colonnes de type résultat à conserver dans le fichier CSV de sortie"
-            encoding:
-              columns:
-                style: form
-                explode: true
-              result_columns:
-                style: form
-                explode: true
-              indexes:
-                style: form
-                explode: true
-      responses:
-        "200":
-          description: Géocodage réussi
-          content:
-            text/csv:
-              schema:
-                type: string
-                format: binary
-                description: |
-                  Fichier CSV contenant les lignes géocodées. Les colonnes ajoutées sont :<br>
-                  - result_label<br>
-                  - result_latitude<br>
-                  - result_longitude<br>
-                  - result_distance<br>
-                  - result_type (address)<br>
-                  - result_id<br>
-                  - result_housenumber (address)<br>
-                  - result_name<br>
-                  - result_street (address)<br>
-                  - result_postcode<br>
-                  - result_city<br>
-                  - result_context<br>
-                  - result_citycode<br>
-                  - result_oldcitycode<br>
-                  - result_oldcity<br>
-                  - result_district<br>
-                  - result_category (poi)<br>
-                  - result_distance (parcel)<br>
-                  - result_score (parcel)<br>
-                  - result_score_next (parcel)<br>
-                  - result_index : index dans lequel l'objet a été trouvé<br>
-                  - result_status (ok = trouvé, not-found = non trouvé, skipped = ligne ignorée en raison de paramètres manquants ou invalides, error = erreur du serveur lors de la recherche)
-
-        "400":
-          description: "Échec du géocodage suite à une erreur dans la requête"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    description: "Message d'erreur"
-                    example: "Erreur lors de la lecture du fichier CSV"
 
 components:
   schemas:
@@ -575,63 +355,60 @@ components:
       oneOf:
         - $ref: "#/components/schemas/Address"
         - $ref: "#/components/schemas/Poi"
-        - $ref: "#/components/schemas/Parcel"
+        - $ref: "#/components/schemas/Cadastre"
 
     GeocodeReverseResponse:
       type: object
       oneOf:
         - $ref: "#/components/schemas/AddressReverse"
         - $ref: "#/components/schemas/PoiReverse"
-        - $ref: "#/components/schemas/ParcelReverse"
+        - $ref: "#/components/schemas/CadastreReverse"
 
-    Parcel:
+    Cadastre:
       type: object
       properties:
         type:
           type: string
           example: Feature
         properties:
-          $ref: "#/components/schemas/ParcelProperties"
+          $ref: "#/components/schemas/CadastreProperties"
         geometry:
           $ref: "#/components/schemas/GeometryPoint"
 
-    ParcelProperties:
+    CadastreProperties:
       type: object
       properties:
         id:
           type: string
-          description: "Identifiant de la parcelle"
-        departmentcode:
+          description: "Identifiant cadastral"
+        name:
           type: string
-          description: "Code du département"
-        municipalitycode:
+          description: "Libellé"
+        citycode:
           type: string
-          description: "Code de la commune"
+          description: "Code (INSEE) de la commune"
         city:
           type: string
           description: "Nom de la commune"
-        oldmunicipalitycode:
+        nic:
           type: string
-          description: "Code de l'ancienne commune"
-        districtcode:
+          description: "Numéro cadastral"
+        lot:
           type: string
-          description: "Code insee de l'arrondissement"
+          description: "Numéro de lot"
+        lotissement:
+          type: string
+          description: "Lotissement cadastral"
         section:
           type: string
           description: "Section cadastrale"
-        number:
-          type: string
-          description: "Numéro cadastral"
-        sheet:
-          type: string
-          description: "Feuille cadastrale"
         truegeometry:
           $ref: "#/components/schemas/GeometryPolygon"
         _score:
           type: number
         _type:
           type: string
-          enum: ["parcel"]
+          enum: ["Cadastre"]
       example:
         id: "75056104AV0133"
         departmentcode: "75"
@@ -657,56 +434,53 @@ components:
               ],
           }
         _score: 1
-        _type: "parcel"
+        _type: "Cadastre"
 
-    ParcelReverse:
+    CadastreReverse:
       type: object
       properties:
         type:
           type: string
           example: Feature
         properties:
-          $ref: "#/components/schemas/ParcelReverseProperties"
+          $ref: "#/components/schemas/CadastreReverseProperties"
         geometry:
           $ref: "#/components/schemas/GeometryPoint"
 
-    ParcelReverseProperties:
+    CadastreReverseProperties:
       type: object
       properties:
         id:
           type: string
-          description: "Identifiant de la parcelle"
-        departmentcode:
+          description: "Identifiant cadastral"
+        name:
           type: string
-          description: "Code du département"
-        municipalitycode:
+          description: "Libellé"
+        citycode:
           type: string
-          description: "Code de la commune"
+          description: "Code (INSEE) de la commune"
         city:
           type: string
           description: "Nom de la commune"
-        oldmunicipalitycode:
+        nic:
           type: string
-          description: "Code de l'ancienne commune"
-        districtcode:
+          description: "Numéro cadastral"
+        lot:
           type: string
-          description: "Code insee de l'arrondissement"
+          description: "Numéro de lot"
+        lotissement:
+          type: string
+          description: "Lotissement cadastral"
         section:
           type: string
           description: "Section cadastrale"
-        number:
-          type: string
-          description: "Numéro cadastral"
-        sheet:
-          type: string
-          description: "Feuille cadastrale"
         truegeometry:
           $ref: "#/components/schemas/GeometryPolygon"
         _score:
           type: number
         _type:
           type: string
-          enum: ["parcel"]
+          enum: ["Cadastre"]
         distance:
           type: number
       example:
@@ -734,7 +508,7 @@ components:
               ],
           }
         _score: 1
-        _type: "parcel"
+        _type: "Cadastre"
         distance: 100
 
     Address:
@@ -903,13 +677,15 @@ components:
     PoiProperties:
       type: object
       properties:
-        toponym:
+        id:
+          type: string
+          description: "identifiant du POI"
+        name:
           type: string
           description: "Libellé du toponyme"
-        postcode:
-          type: array
-          items:
-            $ref: "#/components/schemas/PostalCode"
+        toponym:
+          type: string
+          description: "Libellé abrégé du toponyme"
         citycode:
           type: array
           items:
@@ -920,8 +696,9 @@ components:
             type: string
         category:
           $ref: "#/components/schemas/PoiType"
-        extrafields:
-          type: object
+        type:
+          type: string
+          description: "Type détaillé de POI"
         truegeometry:
           $ref: "#/components/schemas/Geometry"
         _score:
@@ -967,13 +744,15 @@ components:
     PoiReverseProperties:
       type: object
       properties:
-        toponym:
+        id:
+          type: string
+          description: "identifiant du POI"
+        name:
           type: string
           description: "Libellé du toponyme"
-        postcode:
-          type: array
-          items:
-            $ref: "#/components/schemas/PostalCode"
+        toponym:
+          type: string
+          description: "Libellé abrégé du toponyme"
         citycode:
           type: array
           items:
@@ -984,8 +763,9 @@ components:
             type: string
         category:
           $ref: "#/components/schemas/PoiType"
-        extrafields:
-          type: object
+        type:
+          type: string
+          description: "Type détaillé de POI"
         truegeometry:
           $ref: "#/components/schemas/Geometry"
         _score:
@@ -1034,9 +814,43 @@ components:
 
     InseeCode:
       maxLength: 5
-      minLength: 2
+      minLength: 5
       type: string
       description: "Code INSEE"
+      enum:
+        - 98801
+        - 98802
+        - 98803
+        - 98804
+        - 98805
+        - 98806
+        - 98807
+        - 98808
+        - 98809
+        - 98810
+        - 98811
+        - 98812
+        - 98813
+        - 98814
+        - 98815
+        - 98816
+        - 98817
+        - 98818
+        - 98819
+        - 98820
+        - 98821
+        - 98822
+        - 98823
+        - 98824
+        - 98825
+        - 98826
+        - 98827
+        - 98828
+        - 98829
+        - 98830
+        - 98831
+        - 98832
+        - 98833
 
     Geometry:
       type: object
@@ -1182,7 +996,7 @@ components:
           - building
           - staircase
           - unit
-          - parcel
+          - Cadastre
           - segment
           - utility
           - area

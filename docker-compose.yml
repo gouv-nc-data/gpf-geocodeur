@@ -24,6 +24,7 @@ services:
     command: bash -c "python /app/indexes/nc_build_all/index.py"
     profiles: ["all", "build"]
     environment:
+      GEOCODE_INDEXES: address,cadastre,poi
       DEPARTEMENTS: 988
       BAN_ADDOK_URL: https://adresse.data.gouv.fr/data/ban/adresses/latest/addok/adresses-addok-{dep}.ndjson.gz
       ADDRESS_INDEX_MDB_BASE_PATH: ./data/adresses/mbd_index

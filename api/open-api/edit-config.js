@@ -8,7 +8,7 @@ export async function editConfig(yamlPath, apiUrl = '') {
   }
 
   const openApiConfig = await readFile(yamlPath, {encoding: 'utf8'})
-  const editedConfig = openApiConfig.replace('$API_URL', apiUrl)
+  const editedConfig = openApiConfig.replace('$API_URL', apiUrl || '/')
 
   configCache[yamlPath] = {
     editedConfig

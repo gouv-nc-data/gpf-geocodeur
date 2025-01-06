@@ -24,7 +24,7 @@ cadastre_fs_url = os.environ.get(
 )
 
 column_to_keep = ["name", "toponym", "category", "code_comm", "commune", "X", "Y", "nic", "lot", "surf_cad",
-                  "section", "lotissement", "typologie", "nic2"]
+                  "section", "lotissement", "typologie", "nic2", "id"]
 renommage_champs = {
     "name": "name",
     "category": "category",
@@ -68,6 +68,7 @@ parcelles_df["category"] = "CADASTRE"
 
 # Créer champ nic2 pour _id
 parcelles_df["nic2"] = parcelles_df["nic"]
+parcelles_df["id"] = parcelles_df["nic"]
 
 logger.info("Nettoyage et renommage des champs...")
 # champs à conserver
@@ -79,7 +80,7 @@ parcelles_df["source"] = 'DITTT - Cadastre'
 
 # Champs à reclasser
 reclass = ["name", "toponym", "citycode", "city", "category", "source", "surf_cad", "typologie", "nic", "lot", "section",
-           "lotissement", "_id", "lon", "lat"]
+           "lotissement", "id", "lon", "lat"]
 parcelles_df = parcelles_df[reclass]
 
 # Export en ndjson

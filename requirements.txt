@@ -4,3 +4,4 @@ addok-fr==1.0.1
 pandas
 geopandas
 requests
+openpyxl

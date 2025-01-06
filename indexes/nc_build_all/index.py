@@ -12,6 +12,7 @@ CWD = os.path.dirname(os.path.realpath(__file__))
 ROOT = os.path.realpath(os.path.join(CWD, "..", ".."))
 
 DATA_FOLDER = os.environ.get("STORAGE_FS_DIR", os.path.join(ROOT, 'data'))
+INDEXES = os.environ.get("GEOCODE_INDEXES", "address,cadastre,poi").split(",")
 
 # Configurer le logger
 logger = logging.getLogger('ncadresse')
@@ -62,32 +63,41 @@ except Exception as e:
     logger.exception(e)
     sys.exit(1)
 
-try:
-    logger.info("------------------------------------- Cadastre...")
-    os.environ["DATA_CADASTRE"] = os.path.join(DATA_FOLDER, 'cadastre', 'data')
-    import import_cadastre
-    execute_command(["node", "indexes/cadastre/scripts/build-index"], cwd=ROOT)
-except Exception as e:
-    logger.error(f"Une erreur s'est produite lors du traitement du cadastre")
-    logger.exception(e)
+logger.info("------------------------------------- Cadastre...")
+if "cadastre" in INDEXES:
+    try:
+        os.environ["DATA_CADASTRE"] = os.path.join(DATA_FOLDER, 'cadastre', 'data')
+        import import_cadastre
+        execute_command(["node", "indexes/cadastre/scripts/build-index"], cwd=ROOT)
+    except Exception as e:
+        logger.error(f"Une erreur s'est produite lors du traitement du cadastre")
+        logger.exception(e)
+else:
+    logger.info(f"cadastre non demandé à indexer parmi : {INDEXES}")
+
+logger.info("------------------------------------- POIs...")
+if "poi" in INDEXES:
+    try:
+        os.environ["DATA_POI"] = os.path.join(DATA_FOLDER, 'poi', 'data')
+        import import_POI
+        execute_command(["node", "indexes/poi/scripts/build-index"], cwd=ROOT)
+    except Exception as e:
+        logger.error(f"Une erreur s'est produite lors du traitement des POIs")
+        logger.exception(e)
+else:
+    logger.info(f"poi non demandé à indexer parmi : {INDEXES}")
 
 
-try:
-    logger.info("------------------------------------- POIs...")
-    os.environ["DATA_POI"] = os.path.join(DATA_FOLDER, 'poi', 'data')
-    import import_POI
-    execute_command(["node", "indexes/poi/scripts/build-index"], cwd=ROOT)
-except Exception as e:
-    logger.error(f"Une erreur s'est produite lors du traitement des POIs")
-    logger.exception(e)
-
-
-try: 
-    logger.info("------------------------------------- Adresses...")
-    execute_command(["node", "indexes/address/scripts/build-index"], cwd=ROOT)
-except Exception as e:
-    logger.error(f"Une erreur s'est produite lors du traitement des adresses")
-    logger.exception(e)
+logger.info("------------------------------------- Adresses...")
+if "address" in INDEXES:
+    try: 
+        
+        execute_command(["node", "indexes/address/scripts/build-index"], cwd=ROOT)
+    except Exception as e:
+        logger.error(f"Une erreur s'est produite lors du traitement des adresses")
+        logger.exception(e)
+else:
+    logger.info(f"address non demandé à indexer parmi : {INDEXES}")
 
 
 sys.exit(0)

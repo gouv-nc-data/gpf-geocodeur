@@ -39,7 +39,7 @@ paths:
           example: "45, route despo"
         - name: terr
           in: query
-          description: Une limitation de la zone de recherche de localisants. Une liste peut être fournie en séparant les valeurs par des virgules.
+          description: Une limitation de la zone de recherche de localisants (codes commune INSEE). Une liste peut être fournie en séparant les valeurs par des virgules.
           required: false
           schema:
             type: string

@@ -49,18 +49,8 @@ refil_xlsx_url = os.environ.get(
     "https://data.gouv.nc/api/explore/v2.1/catalog/datasets/referentiel-des-immeubles-localises-refil/exports/xlsx"
 )
 
-column_to_keep = ["libelle", "libel_abr", "categorie", "code_com", "commune_y", "X", "Y"]
-renommage_champs = {
-    "libelle": "name",
-    "libel_abr": "toponym",
-    "categorie": "category",
-    "code_com": "citycode",
-    "commune": "city",
-    "X": "lon",
-    "Y": "lat"
-}
 # Champs à reclasser
-reclass = ["name", "toponym", "citycode", "city", "category", "type", "source", "lon", "lat"]
+reclass = ["name", "toponym", "citycode", "city", "category", "type", "source", "lon", "lat", "id"]
 
 logger.info("Téléchargement de la BDLOC et import en geodataframe...")
 bdloc_df = myutils.get_geodf_from_featureservice(bdloc_fs_url)
@@ -76,7 +66,7 @@ atlas_df["X"] = atlas_df.geometry.x
 atlas_df["Y"] = atlas_df.geometry.y
 
 logger.info("Nettoyage et renommage des champs...")
-atlas_col_to_keep = ["lib_ville", "lib_norme","lib_court","apparten","X","Y"]
+atlas_col_to_keep = ["lib_ville", "lib_norme","lib_court","apparten","X","Y", "ident"]
 atlas_df = atlas_df[atlas_col_to_keep]
 
 logger.info("Calcul du code commune (depuis libelle)...")
@@ -92,12 +82,14 @@ rename_atlas = {
     "lib_ville": "name",
     "lib_norme": "toponym",
     "commune": "city",
+    "ident": "id",
     "X": "lon",
     "Y": "lat",
     "code_comm": "citycode"
 }
 atlas_df = atlas_df.rename(columns=rename_atlas)
 atlas_df["source"] = 'Atlas SERAIL'
+atlas_df["id"] = 'SERAIL_ATLAS_' + atlas_df["id"] 
 atlas_df = atlas_df[reclass]
 
 #################### REFIL SERAIL #################
@@ -108,9 +100,9 @@ refil_df = refil_df[refil_to_keep]
 
 # Split point_geo par , pour refil
 logger.info("point_Geo vers X et Y...")
-refil_df[['Y', 'X']] = refil_df['point_geo'].str.split(', ', expand=True)
-refil_df['X'] = refil_df['X'].astype(float) 
-refil_df['Y'] = refil_df['Y'].astype(float)  
+refil_df[['lat', 'lon']] = refil_df['point_geo'].str.split(', ', expand=True)
+refil_df['lon'] = refil_df['lon'].astype(float) 
+refil_df['lat'] = refil_df['lat'].astype(float)  
 
 logger.info("Calcul du code commune (depuis libelle)...")
 com_name_refil = {"apparten": "commune"}
@@ -123,15 +115,14 @@ refil_df["type"] = "Imm"
 
 rename_refil = {
     "nom": "name",
-    "ident": "_id",
+    "ident": "id",
     "libadrs1": "toponym",
     "commune": "city",
-    "Y": "lat",
-    "X": "lon",
     "code_comm": "citycode"
 }
 refil_df = refil_df.rename(columns=rename_refil)
 refil_df["source"] = 'REFIL SERAIL'
+refil_df["id"] = "SERAIL_REFIL_" + refil_df["id"].astype(str)
 refil_df = refil_df[reclass]
 
 #################### BDLOC #################
@@ -148,11 +139,22 @@ logger.info("Calcul du libelle commune (depuis code_com)...")
 myutils.df_compute_commune(bdloc_df)
 
 logger.info("Nettoyage et renommage des champs...")
-column_to_keep = ["libelle", "libel_abr", "categorie", "code_com", "commune", "type", "X", "Y"]
+column_to_keep = ["libelle", "libel_abr", "categorie", "code_com", "commune", "type", "X", "Y", "globalid"]
 bdloc_df = bdloc_df[column_to_keep]
 # Champs à renommer
+renommage_champs = {
+    "libelle": "name",
+    "libel_abr": "toponym",
+    "categorie": "category",
+    "code_com": "citycode",
+    "globalid": "id",
+    "commune": "city",
+    "X": "lon",
+    "Y": "lat"
+}
 bdloc_df = bdloc_df.rename(columns=renommage_champs)
 bdloc_df["source"] = 'BDLOC DITTT'
+bdloc_df["id"] = 'BDLOC_' + bdloc_df["id"]
 bdloc_df = bdloc_df[reclass]
 
 
@@ -178,7 +180,6 @@ poi_result_df = poi_result_df[reclass]
 # Export en ndjson
 logger.info("Export en ndjson...")
 poi_result_df.to_json(os.path.join(output_folder, "poi.ndjson"), orient='records', lines=True)
-refil_df.to_json(os.path.join(output_folder, "refil_poi.ndjson"), orient='records', lines=True)
 
 # listing des categories
 categories = poi_result_df["category"].unique()
