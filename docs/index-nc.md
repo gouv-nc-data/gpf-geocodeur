@@ -8,17 +8,20 @@ docker compose -f docker-compose.yml --profile build up
 Cette commande permet de lancer la génération des index de données spécifiques à la NC
 - address (issues de la BAN)
 - cadastre : points cadastraux (centroides des parcelles cadastrales) issus du gouvernement
+- POI : positions d'interêt issues de SERAIL (Atlas et REFIL)  et de la BDLOC de la DITTT
+Les données (au format ndjson) et les index seront buildés pour la NC en quelques minutes.
 
 ```bash
 docker compose -f docker-compose.yml --profile api up
 ```
-Le géocodeur sera lancé sur les données NC en quelques minutes, et sera accessible à l'adresse <http://localhost:3000>.
+Le géocodeur sera lancé sur les données NC en quelques secondes, et sera accessible à l'adresse <http://localhost:3000>.
 Il est obligatoire que les données indexées soient déjà disponibles (cf ci-dessus) pour que les API puissent se lancer
 
 
-## Spécificté du build des données
+## Spécificité du build des données NC
 Le build des données se fait via un script python principal indexes/nc_buil_all/index.py qui va lancer la génération des sources (fichiers ndjson au format attendu) puis les commandes yarn de génération des index.
-La variable STORAGE_FS_DIR= /data dans les différentes services du docker compose permettent de stocker/partager les données ndjson et les index
+La variable STORAGE_FS_DIR= /data dans les différentes services du docker compose permet de stocker/partager les données ndjson et les index.
+C'est le service compose buildata (profile build) qui va être chargé de lancer ce build.
 
 Les addresses sont générés via les outils standards de la géoplateforme grâce aux variables d'environnement suivantes :
 - DEPARTEMENTS= 988
@@ -44,7 +47,7 @@ Les POI sont générés via le script python indexes/nc_build_all/import_POI.py 
 - l'url de la couche des POI BDLOC du FeatureService Esri publié dans le cloud esri du gouvernement (pour l'open data Esri du gouv)
 NB : le script python produit aussi un fichier categories.json, qui permet de fournir la liste des catégories exposée dans le getCapabilities de l'API
 
-# Spécificité des sous-api
+# Spécificité des sous-api (adaptations à la NC)
 3 sous api sont utilisées :
 - address : il s'agit de la sous-api standard IGN, juste épurée de quelques paramètres non nécessaires pour la NC
 - poi : il s'agit de la sous-api standard de l'IGN, adaptée avec quelques spécificités NC (notamment des catégories adaptées aux données NC)
