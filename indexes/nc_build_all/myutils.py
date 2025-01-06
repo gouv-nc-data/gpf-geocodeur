@@ -3,6 +3,9 @@
 import geopandas as gpd
 import pandas as pd
 import requests
+import os
+
+CWD = os.path.dirname(os.path.realpath(__file__))
 
 COMMUNES = [line.split("\t") for line in """98801	BELEP
 98802	BOULOUPARI
@@ -75,6 +78,21 @@ def get_geodf_from_featureservice(feature_layer_url, limit=None):
 
     return gpd.GeoDataFrame.from_features(all_features)
 
+def get_df_from_xlsx_url(xlsx_url, filepath=None):
+    response = requests.get(xlsx_url)
+    if not filepath:
+        filepath = "tmp_downloaded_xlsx.xlsx"
+    if not filepath.endswith(".xlsx"):
+        filepath += ".xlsx"
+    with requests.get(xlsx_url, stream=True) as response:
+        response.raise_for_status()
+        with open(filepath, 'wb') as file:
+            for chunk in response.iter_content(chunk_size=8192):  # Adjust chunk size as needed
+                if chunk:  # Filter out keep-alive new chunks
+                    file.write(chunk)
+    df = pd.read_excel(filepath)
+    os.remove(filepath)
+    return df
 
 def _compute_code_commune(value):
     if not value:

@@ -79,20 +79,6 @@
       "filter": false
     },
     {
-      "name": "oldcitycode",
-      "description": "code INSEE de la commune ancienne (le cas échéant)",
-      "type": "string",
-      "queryable": false,
-      "filter": false
-    },
-    {
-      "name": "oldcity",
-      "description": "nom de la commune ancienne (le cas échéant)",
-      "type": "string",
-      "queryable": false,
-      "filter": false
-    },
-    {
       "name": "context",
       "description": "n° de département, nom de département et de région",
       "type": "string",

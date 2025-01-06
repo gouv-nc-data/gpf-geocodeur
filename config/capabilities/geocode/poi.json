@@ -10,6 +10,13 @@
       "filter": true
     },
     {
+      "name": "type",
+      "description": "le type détaillé du lieu",
+      "type": "string",
+      "queryable": true,
+      "filter": true
+    },
+    {
       "name": "toponyme",
       "description": "le toponyme",
       "type": "string",

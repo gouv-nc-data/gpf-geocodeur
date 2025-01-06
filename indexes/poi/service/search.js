@@ -3,8 +3,8 @@ import {prepareParams} from '../../../lib/addok/prepare-params.js'
 
 const POI_FIELDS = [
   'name',
-  'toponym',
   'category',
+  'type',
   'postcode',
   'citycode',
   'city',

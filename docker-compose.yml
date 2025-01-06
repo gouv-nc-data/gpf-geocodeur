@@ -2,6 +2,7 @@ version : '0.1'
 services:
   api:
     build: .
+    profiles: ["all", "api"]
     command: yarn api:start
     ports:
       - "3000:3000"
@@ -17,9 +18,11 @@ services:
       - data:/data
   redis:
     image: redis:7-alpine
+    profiles: ["all", "api"]
   builddata:
     build: .
     command: bash -c "python /app/indexes/nc_build_all/index.py"
+    profiles: ["all", "build"]
     environment:
       DEPARTEMENTS: 988
       BAN_ADDOK_URL: https://adresse.data.gouv.fr/data/ban/adresses/latest/addok/adresses-addok-{dep}.ndjson.gz
@@ -28,24 +31,19 @@ services:
       POI_INDEX_MDB_BASE_PATH: ./data/poi/mbd_index
       POI_INDEX_PATH: ./data/poi/index
       BDLOC_FEATURE_SERVICE_LAYER: https://services1.arcgis.com/TZcrgU6CIbqWt9Qv/ArcGIS/rest/services/BDLOC/FeatureServer/13
+      REFIL_XLSX_URL: https://data.gouv.nc/api/explore/v2.1/catalog/datasets/referentiel-des-immeubles-localises-refil/exports/xlsx
+      ATLAS_FEATURE_SERVICE_LAYER: https://services1.arcgis.com/TZcrgU6CIbqWt9Qv/ArcGIS/rest/services/atlas_equipements_publics_serail/FeatureServer/0
       CAD_INDEX_MDB_BASE_PATH: ./data/cadastre/mbd_index
       CAD_INDEX_PATH: ./data/cadastre/index
       NC_CADASTRE_FEATURE_SERVICE_LAYER: https://services1.arcgis.com/TZcrgU6CIbqWt9Qv/arcgis/rest/services/cadastre_centroide/FeatureServer/0
       STORAGE_FS_DIR: /data
       MAGIC_TOKEN: "12345"
-    healthcheck:
-      test:  bash -c "test -f /data/address/index/dump.rdb && test -f /data/poi/index/dump.rdb && test -f /data/cadastre/index/dump.rdb"
-      interval: 5s
-      timeout: 1s
-      retries: 60
     volumes:
       - ./data:/data
   address:
     build: .
     command: bash -c "yarn address:start"
-    depends_on:
-      builddata:
-        condition: service_healthy
+    profiles: ["all", "api"]
     environment:
       ADDRESS_INDEX_MDB_BASE_PATH: ./data/adresses/mbd_index
       ADDRESS_INDEX_PATH: ./data/adresses/index
@@ -56,9 +54,7 @@ services:
   poi:
     build: .
     command: bash -c "yarn poi:start"
-    depends_on:
-      builddata:
-        condition: service_healthy
+    profiles: ["all", "api"]
     environment:
       POI_INDEX_MDB_BASE_PATH: ./data/poi/mbd_index
       POI_INDEX_PATH: ./data/poi/index
@@ -69,9 +65,7 @@ services:
   cadastre:
     build: .
     command: bash -c "yarn cadastre:start"
-    depends_on:
-      builddata:
-        condition: service_healthy
+    profiles: ["all", "api"]
     environment:
       CAD_INDEX_MDB_BASE_PATH: ./data/cadastre/mbd_index
       CAD_INDEX_PATH: ./data/cadastre/index

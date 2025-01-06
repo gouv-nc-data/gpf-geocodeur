@@ -11,7 +11,6 @@
     "test-lcov": "c8 --reporter=lcov --reporter=text --reporter=html --all ava --no-worker-threads api batch indexes lib",
     "recette:single": "ava tests/recette/single",
     "recette:batch-sync": "ava --timeout=10m --serial tests/recette/batch-sync",
-    "recette:batch-async": "ava --timeout=10m --serial tests/recette/batch-async.js",
     "poi:build-from-bdtopo": "node indexes/poi/scripts/build-from-bdtopo",
     "poi:build-index": "node indexes/poi/scripts/build-index",
     "cadastre:build-index": "node indexes/cadastre/scripts/build-index",
