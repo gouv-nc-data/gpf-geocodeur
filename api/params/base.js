@@ -138,7 +138,7 @@ export const PARAMS = {
       }
     },
     description: 'filtre pour les index address et poi. Il permet de filtrer les résultats par code INSEE',
-    example: '94067'
+    example: '98818'
   },
 
   city: {
@@ -170,92 +170,6 @@ export const PARAMS = {
     defaultValue: true,
     description: 'indique si la recherche doit être réalisée en mode auto-complétion. Pertinent uniquement pour la saisie en direct d\'utilisateurs',
     example: 'false'
-  },
-
-  departmentcode: {
-    type: 'string',
-    validate(v) {
-      if (!isDepartmentcodeValid(v)) {
-        throw new Error('not valid')
-      }
-    },
-    description: 'filtre pour l’index parcel. Il permet de filtrer par code de département',
-    example: '94'
-  },
-
-  municipalitycode: {
-    type: 'string',
-    validate(v) {
-      if (!/^\d{2,3}$/.test(v)) {
-        throw new Error('not valid')
-      }
-    },
-    description: 'filtre pour l’index parcel. Il permet de filtrer par code de commune',
-    example: '000'
-  },
-
-  oldmunicipalitycode: {
-    type: 'string',
-    validate(v) {
-      if (!/^\d{3}$/.test(v)) {
-        throw new Error('not valid')
-      }
-    },
-    description: 'filtre pour l’index parcel. Il permet de filtrer par code d’ancienne commune',
-    example: '000'
-  },
-
-  districtcode: {
-    type: 'string',
-    validate(v) {
-      if (!/^\d{3}$/.test(v)) {
-        throw new Error('not valid')
-      }
-    },
-    description: 'filtre pour l’index parcel. Il permet de filtrer par code d’arrondissement',
-    example: '105'
-  },
-
-  section: {
-    type: 'string',
-    validate(v) {
-      if (!/^(\d{1,2}|[A-Z]{1,2}|0?[A-Z])$/.test(v)) {
-        throw new Error('not valid')
-      }
-    },
-    normalize(v) {
-      return v.padStart(2, '0')
-    },
-    description: 'filtre pour l’index parcel. Il permet de filtrer par section',
-    example: 'AC'
-  },
-
-  number: {
-    type: 'string',
-    validate(v) {
-      if (!/^\d{1,4}$/.test(v)) {
-        throw new Error('not valid')
-      }
-    },
-    normalize(v) {
-      return v.padStart(4, '0')
-    },
-    description: 'filtre pour l’index parcel. Il permet de filtrer par feuille',
-    example: '0035'
-  },
-
-  sheet: {
-    type: 'string',
-    validate(v) {
-      if (!/^\d{1,2}$/.test(v)) {
-        throw new Error('not valid')
-      }
-    },
-    normalize(v) {
-      return v.padStart(2, '0')
-    },
-    description: 'filtre pour l’index parcel. Il permet de filtrer par feuille',
-    example: '1'
   }
 }
 

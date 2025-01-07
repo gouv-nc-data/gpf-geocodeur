@@ -17,12 +17,13 @@ export default async function computeAutocompleteCapabilities() {
   const capabilities = await readJson('./config/capabilities/autocomplete/base.json')
   const addressCapabilities = await readJson('./config/capabilities/autocomplete/address.json')
   const poiCapabilities = await readJson('./config/capabilities/autocomplete/poi.json')
+  const cadastreCapabilities = await readJson('./config/capabilities/autocomplete/cadastre.json')
   const categories = await getCategories()
 
   poiCapabilities.fields[0].values = categories
 
   capabilities.operations[0].parameters = parameters
-  capabilities.indexes = [addressCapabilities, poiCapabilities]
+  capabilities.indexes = [addressCapabilities, poiCapabilities, cadastreCapabilities]
 
   _capabilities = capabilities
   _capabilitiesDate = Date.now()

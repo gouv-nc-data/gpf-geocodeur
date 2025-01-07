@@ -69,13 +69,6 @@
       ]
     },
     {
-      "name": "metropole",
-      "description": "Le POI se trouve-t-il en France métropolitaine ?",
-      "type": "boolean",
-      "queryable": false,
-      "filter": true
-    },
-    {
       "name": "importance",
       "description": "Le poids",
       "type": "float",

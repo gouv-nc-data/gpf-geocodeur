@@ -20,13 +20,6 @@
       "filter": false
     },
     {
-      "name": "oldcity",
-      "description": "Nom de la commune ancienne absorbée (le cas échéant)",
-      "type": "string",
-      "queryable": false,
-      "filter": false
-    },
-    {
       "name": "zipcode",
       "description": "Code postal de l’adresse, de la voie ou de la commune",
       "type": "string",
@@ -53,13 +46,6 @@
       "type": "string",
       "queryable": false,
       "filter": false
-    },
-    {
-      "name": "metropole",
-      "description": "L'adresse est-elle située en France métropolitaine ?",
-      "type": "boolean",
-      "queryable": false,
-      "filter": true
     },
     {
       "name": "fulltext",

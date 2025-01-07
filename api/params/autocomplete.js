@@ -1,18 +1,7 @@
 import {extractSingleParams, isFirstCharValid, parseFloatAndValidate} from '../util/params.js'
 import {normalizeQuery} from '../util/querystring.js'
-import {getDepartements} from '../../lib/cog.js'
-
-const codesDepartements = new Set(getDepartements().map(d => d.code))
 
 export function isTerrValid(terr) {
-  if (terr === 'METROPOLE' || terr === 'DOMTOM') {
-    return true
-  }
-
-  if (codesDepartements.has(terr)) {
-    return true
-  }
-
   if (/^\d{5}$/.test(terr)) {
     return true
   }
@@ -73,8 +62,8 @@ export const AUTOCOMPLETE = {
         throw new Error('unexpected value')
       }
     },
-    description: 'une limitation de la zone de recherche de localisants. Les valeurs acceptés sont METROPOLE, DOMTOM, les codes département et les codes communes (INSEE).',
-    example: '75013'
+    description: 'une limitation de la zone de recherche de localisants. Les valeurs acceptés sont les codes communes (INSEE).',
+    example: '98818'
   },
 
   poiType: {

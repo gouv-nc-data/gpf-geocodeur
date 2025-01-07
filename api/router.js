@@ -54,7 +54,7 @@ export default async function createRouter(options = {}) {
     })
   }))
 
-  router.post('/batch', express.json(), w(async (req, res) => {
+  /*router.post('/batch', express.json(), w(async (req, res) => {
     const payload = req.body
 
     validateBatchPayload(payload, new Set(['search', 'reverse']))
@@ -75,7 +75,7 @@ export default async function createRouter(options = {}) {
     upload.single('data'),
     w(parseAndValidate()),
     w(csv({indexes, operation: 'reverse'}))
-  )
+  )*/
 
   router.get('/completion', w(async (req, res) => {
     const params = extractAutocompleteParams(req.query)

@@ -52,6 +52,19 @@
                 <input type="text" id="text" class="form-control" placeholder="Adresse, Cadastre, POI" list="search-data" />
                 <datalist id="search-data"></datalist>
             </div>
+            <div class="form-check mb-3">
+                <input type="checkbox" class="form-check-input" id="lonlat" name="lonlat" value="lonlat">
+                <label class="form-check-label">Favoriser les résultats proches du centre</label>
+            </div>
+            <input type="submit" class="btn btn-primary w-100 mb-2" value="Rechercher" />
+            <hr />
+            <button id="reversebtn" class="btn btn-secondary w-100 mb-3" >Recherche inverse</button>
+            <p>NB : la recherche inverse est faite en respectant les types et sur le centre de la carte</p>
+            <span id="center-coordinates" class="text-muted">Centre de la carte : Chargement...</span>
+            <hr />
+             <!-- Error Alert -->
+             <div id="error-alert" class="alert alert-danger d-none" role="alert"></div>
+            <hr/>
             <fieldset class="mb-3">
                 <legend>Types de recherche :</legend>
                 <div class="form-check">
@@ -67,25 +80,14 @@
                     <label class="form-check-label">Cadastre (centroide des parcelles)</label>
                 </div>
             </fieldset>
-            <div class="form-check mb-3">
-                <input type="checkbox" class="form-check-input" id="lonlat" name="lonlat" value="lonlat">
-                <label class="form-check-label">Favoriser les résultats proches du centre</label>
+            <div class="mb-3">
+                <label for="limit" class="form-label">Nombre max de résultats</label>
+                <input type="number" id="limit" class="form-control" placeholder="Nb max de résultats" min="1" max="20" step="1" />
             </div>
-            <input type="submit" class="btn btn-primary w-100 mb-2" value="Rechercher" />
-             <!-- Error Alert -->
-             <div id="error-alert" class="alert alert-danger d-none" role="alert"></div>
-            <hr />
-            <button id="reversebtn" class="btn btn-secondary w-100 mb-3" >Recherche inverse</button>
-            <p>NB : la recherche inverse est faite en respectant les types et sur le centre de la carte</p>
-            <span id="center-coordinates" class="text-muted">Centre de la carte : Chargement...</span>
             <hr />
             <div class="mb-3">
                 <label for="api" class="form-label">API URL</label>
                 <input type="url" id="api" class="form-control" placeholder="API URL" value="http://localhost:3000/" />
-            </div>
-            <div class="mb-3">
-                <label for="limit" class="form-label">Nombre max de résultats</label>
-                <input type="number" id="limit" class="form-control" placeholder="Nb max de résultats" min="1" max="20" step="1" />
             </div>
             <hr />
             <a href="#" id="openapi" class="btn btn-info w-100 text-white" target="_blank">Documentation OpenAPI</a>

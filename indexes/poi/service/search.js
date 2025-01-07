@@ -2,9 +2,10 @@ import {pick} from 'lodash-es'
 import {prepareParams} from '../../../lib/addok/prepare-params.js'
 
 const POI_FIELDS = [
+  'id',
   'name',
-  'toponym',
   'category',
+  'type',
   'postcode',
   'citycode',
   'city',

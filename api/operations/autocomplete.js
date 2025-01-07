@@ -177,6 +177,9 @@ export function postFilterTerr(result, terr) {
   if (ensureArray(result.properties.postcode).some(postcode => terr.has(postcode))) {
     return true
   }
+  if (ensureArray(result.properties.citycode).some(citycode => terr.has(citycode))) {
+    return true
+  }
 
   const depcode = computeDepCodeFromCityCode(result.properties.citycode)
   if (depcode.some(depcode => terr.has(depcode))) {

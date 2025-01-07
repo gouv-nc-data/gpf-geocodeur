@@ -8,7 +8,9 @@ const {CAD_INDEX_URL} = process.env
 const FILTERS = [
   'citycode',
   'postcode',
-  'category'
+  'category',
+  'nic',
+  'section'
 ]
 
 export function prepareRequest(params) {

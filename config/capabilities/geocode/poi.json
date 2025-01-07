@@ -3,8 +3,22 @@
   "description": "points d'intérêt",
   "fields": [
     {
+      "name": "id",
+      "description": "identifiant",
+      "type": "string",
+      "queryable": false,
+      "filter": false
+    },
+    {
       "name": "category",
       "description": "le type du lieu",
+      "type": "string",
+      "queryable": true,
+      "filter": true
+    },
+    {
+      "name": "type",
+      "description": "le type détaillé du lieu",
       "type": "string",
       "queryable": true,
       "filter": true
