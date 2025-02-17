@@ -1,5 +1,5 @@
 # Stage 1
-FROM --platform=linux/amd64 9555v10x.gra7.container-registry.ovh.net/gpf-dockerhub/nikolaik/python-nodejs:python3.10-nodejs20-slim AS build
+FROM nikolaik/python-nodejs:python3.10-nodejs20-slim AS build
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y build-essential gcc
@@ -16,7 +16,7 @@ RUN pip install --user -r requirements.txt
 FROM --platform=linux/amd64 redis:7.0 AS redis
 
 # Stage 3
-FROM --platform=linux/amd64 9555v10x.gra7.container-registry.ovh.net/gpf-dockerhub/nikolaik/python-nodejs:python3.10-nodejs20-slim
+FROM nikolaik/python-nodejs:python3.10-nodejs20-slim
 WORKDIR /app
 
 COPY --from=redis /usr/local/bin/redis-server /usr/local/bin/redis-server
@@ -33,11 +33,11 @@ RUN corepack disable && npm install -g yarn
 
 COPY . .
 
-ENV PATH=/root/.local/bin:$PATH
-ENV NODE_ENV production
-ENV TMP_PATH /tmp
-ENV DATA_PATH /data
-ENV PORT 3000
+ENV PATH="/root/.local/bin:$PATH" \
+    NODE_ENV=production \
+    TMP_PATH=/tmp \
+    DATA_PATH=/data \
+    PORT=3000
 
 EXPOSE 3000
 
