@@ -1,6 +1,9 @@
 name: localisation
 services:
   main:
+    depends_on:
+      builddata:
+        condition: service_completed_successfully
     build: .
     profiles: ["all", "api"]
     command: yarn api:start
@@ -17,6 +20,9 @@ services:
     volumes:
       - data:/data
   redis:
+    depends_on:
+      builddata:
+        condition: service_completed_successfully
     image: redis:7-alpine
     profiles: ["all", "api"]
   builddata:
@@ -42,6 +48,9 @@ services:
     volumes:
       - data:/data
   address:
+    depends_on:
+      builddata:
+        condition: service_completed_successfully
     build: .
     command: bash -c "yarn address:start"
     profiles: ["all", "api"]
@@ -53,6 +62,9 @@ services:
     volumes:
       - data:/data
   poi:
+    depends_on:
+      builddata:
+        condition: service_completed_successfully
     build: .
     command: bash -c "yarn poi:start"
     profiles: ["all", "api"]
@@ -64,6 +76,9 @@ services:
     volumes:
       - data:/data
   cadastre:
+    depends_on:
+      builddata:
+        condition: service_completed_successfully
     build: .
     command: bash -c "yarn cadastre:start"
     profiles: ["all", "api"]
