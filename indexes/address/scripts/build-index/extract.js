@@ -1,3 +1,4 @@
+import 'global-agent/bootstrap'
 import {createGunzip} from 'node:zlib'
 import got from 'got'
 import {parse} from 'ndjson'

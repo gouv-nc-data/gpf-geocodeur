@@ -57,6 +57,7 @@
     "flexsearch": "^0.7.31",
     "gdal-async": "^3.9.0",
     "geobuf": "^3.0.2",
+    "global-agent": "^3.0.0",
     "got": "^14.4.1",
     "hpagent": "^1.2.0",
     "http-errors": "^2.0.0",
@@ -122,14 +123,13 @@
     }
   },
   "ava": {
-        "environmentVariables": {
-            "NODE_ENV": "test",
-            "GPF_API_URL": "https://gpf-api",
-            "HTTP_PROXY": "",
-            "HTTPS_PROXY": ""
-        }
-
-    },
+    "environmentVariables": {
+      "NODE_ENV": "test",
+      "GPF_API_URL": "https://gpf-api",
+      "HTTP_PROXY": "",
+      "HTTPS_PROXY": ""
+    }
+  },
   "engines": {
     "node": ">= 20.9 <21"
   },
