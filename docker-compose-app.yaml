@@ -1,0 +1,77 @@
+name: localisation
+services:
+  main:
+    image: docker-registry.ref.gnc/gouv-nc-data/gpf-geocodeur:latest
+    command: yarn api:start
+    ports:
+      - "${PORT_3000}:3000"
+    environment:
+      GEOCODE_INDEXES: address,cadastre,poi
+      ADDRESS_INDEX_URL: http://address:3000
+      POI_INDEX_URL: http://poi:3000
+      CAD_INDEX_URL: http://cadastre:3000
+      REDIS_URL: redis://redis:6379
+      STORAGE_FS_DIR: /data
+      MAGIC_TOKEN: "12345"
+    volumes:
+      - /opt/docker_dtsi/app/localisation-update-etl/data:/data
+    labels:
+    - logweb.dtsi_access=ETUDE
+
+  redis:
+    image: docker-registry.ref.gnc/redis:7-alpine
+    labels:
+      - logweb.dtsi_access=ETUDE
+  address:
+    image: docker-registry.ref.gnc/gouv-nc-data/gpf-geocodeur:latest
+    command: bash -c "yarn address:start"
+    environment:
+      ADDRESS_INDEX_MDB_BASE_PATH: /data/adresses/mbd_index
+      ADDRESS_INDEX_PATH: /data/adresses/index
+      STORAGE_FS_DIR: /data
+      MAGIC_TOKEN: "12345"
+    volumes:
+      - /opt/docker_dtsi/app/localisation-update-etl/data:/data
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.3'
+    labels:
+      - logweb.dtsi_access=ETUDE
+
+  poi:
+    image: docker-registry.ref.gnc/gouv-nc-data/gpf-geocodeur:latest
+    command: bash -c "yarn poi:start"
+    environment:
+      POI_INDEX_MDB_BASE_PATH: /data/poi/mbd_index
+      POI_INDEX_PATH: /data/poi/index
+      STORAGE_FS_DIR: /data
+      MAGIC_TOKEN: "12345"
+    volumes:
+      - /opt/docker_dtsi/app/localisation-update-etl/data:/data
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.3'
+    labels:
+      - logweb.dtsi_access=ETUDE
+
+  cadastre:
+    image: docker-registry.ref.gnc/gouv-nc-data/gpf-geocodeur:latest
+    command: bash -c "yarn cadastre:start"
+    environment:
+      CAD_INDEX_MDB_BASE_PATH: /data/cadastre/mbd_index
+      CAD_INDEX_PATH: /data/cadastre/index
+      STORAGE_FS_DIR: /data
+      MAGIC_TOKEN: "12345"
+    volumes:
+      - /opt/docker_dtsi/app/localisation-update-etl/data:/data
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.3'
+    labels:
+      - logweb.dtsi_access=ETUDE
