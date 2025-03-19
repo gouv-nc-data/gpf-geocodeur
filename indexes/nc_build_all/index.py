@@ -41,7 +41,7 @@ def execute_command(cmd, cwd=None):
     if proc.returncode == 0:
         logger.info('Commande executee avec succes')
     else:
-        logger.warning(f"Command return code : {proc.returncode}")
+        logger.error(f"Command return code : {proc.returncode}")
     if outs:
         logger.info(outs)
     if errs:
@@ -53,6 +53,7 @@ def execute_command(cmd, cwd=None):
     return True
 
 
+has_error = False
 try:
     logger.info("--- Initialisation des dossiers data...")
     for theme in ["address", "poi", "cadastre"]:
@@ -68,8 +69,11 @@ if "cadastre" in INDEXES:
     try:
         os.environ["DATA_CADASTRE"] = os.path.join(DATA_FOLDER, 'cadastre', 'data')
         import import_cadastre
-        execute_command(["node", "indexes/cadastre/scripts/build-index"], cwd=ROOT)
+        success = execute_command(["node", "indexes/cadastre/scripts/build-index"], cwd=ROOT)
+        if not success:
+            has_error = True
     except Exception as e:
+        has_error = True
         logger.error(f"Une erreur s'est produite lors du traitement du cadastre")
         logger.exception(e)
 else:
@@ -80,8 +84,11 @@ if "poi" in INDEXES:
     try:
         os.environ["DATA_POI"] = os.path.join(DATA_FOLDER, 'poi', 'data')
         import import_POI
-        execute_command(["node", "indexes/poi/scripts/build-index"], cwd=ROOT)
+        success = execute_command(["node", "indexes/poi/scripts/build-index"], cwd=ROOT)
+        if not success:
+            has_error = True
     except Exception as e:
+        has_error = True
         logger.error(f"Une erreur s'est produite lors du traitement des POIs")
         logger.exception(e)
 else:
@@ -90,14 +97,16 @@ else:
 
 logger.info("------------------------------------- Adresses...")
 if "address" in INDEXES:
-    try: 
-        
-        execute_command(["node", "indexes/address/scripts/build-index"], cwd=ROOT)
+    try:
+        success = execute_command(["node", "indexes/address/scripts/build-index"], cwd=ROOT)
+        if not success:
+            has_error = True
     except Exception as e:
         logger.error(f"Une erreur s'est produite lors du traitement des adresses")
         logger.exception(e)
 else:
     logger.info(f"address non demandé à indexer parmi : {INDEXES}")
 
-
+if has_error:
+    sys.exit(1)
 sys.exit(0)
