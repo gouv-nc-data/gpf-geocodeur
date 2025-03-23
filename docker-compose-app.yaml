@@ -13,6 +13,7 @@ services:
       REDIS_URL: redis://redis:6379
       STORAGE_FS_DIR: /data
       MAGIC_TOKEN: "12345"
+      API_URL: /api/
     volumes:
       - /opt/docker_dtsi/app/localisation-update-etl/data:/data
     labels:
