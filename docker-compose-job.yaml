@@ -12,8 +12,11 @@ services:
       POI_INDEX_MDB_BASE_PATH: /data/poi/mbd_index
       POI_INDEX_PATH: /data/poi/index
       BDLOC_FEATURE_SERVICE_LAYER: https://services1.arcgis.com/TZcrgU6CIbqWt9Qv/ArcGIS/rest/services/BDLOC/FeatureServer/13
+      BDLOC_VOIE_FEATURE_SERVICE_LAYER: https://services1.arcgis.com/TZcrgU6CIbqWt9Qv/ArcGIS/rest/services/BDLOC/FeatureServer/12
       REFIL_XLSX_URL: https://data.gouv.nc/api/explore/v2.1/catalog/datasets/referentiel-des-immeubles-localises-refil/exports/xlsx
-      ATLAS_FEATURE_SERVICE_LAYER: https://services1.arcgis.com/TZcrgU6CIbqWt9Qv/ArcGIS/rest/services/atlas_equipements_publics_serail/FeatureServer/0
+      ATLAS_XLSX_URL: https://data.gouv.nc/api/explore/v2.1/catalog/datasets/atlas-equipements-publics-serail/exports/xlsx
+      BDLOC_POI_CATEGORIES_TO_REMOVE: AGRIC,DECHET,ENERGIE,EQ_SPORT,PARC,SITE,TOURISME
+      BDLOC_POI_TYPES_TO_REMOVE: Biblio,Cculturel,Cinema,Mon,Musee,Theatre,Hydronyme,Oronyme,Cfuneraire,Cim,Pharma,Paljustice,Pol,Tribun,Arretbus,Cmaint,Heliport,Quai
       CAD_INDEX_MDB_BASE_PATH: /data/cadastre/mbd_index
       CAD_INDEX_PATH: /data/cadastre/index
       NC_CADASTRE_FEATURE_SERVICE_LAYER: https://services1.arcgis.com/TZcrgU6CIbqWt9Qv/arcgis/rest/services/cadastre_centroide/FeatureServer/0
