@@ -10,18 +10,25 @@
       "filter": true
     },
     {
-      "name": "toponyme",
-      "description": "le toponyme",
+      "name": "id",
+      "description": "identifiant cadastral",
       "type": "string",
-      "queryable": true,
+      "queryable": false,
       "filter": false
     },
     {
-      "name": "postcode",
-      "description": "le code postal",
+      "name": "name",
+      "description": "Libellé long",
       "type": "string",
-      "queryable": true,
-      "filter": true
+      "queryable": false,
+      "filter": false
+    },
+    {
+      "name": "toponym",
+      "description": "Libellé court",
+      "type": "string",
+      "queryable": false,
+      "filter": false
     },
     {
       "name": "citycode",
@@ -38,15 +45,43 @@
       "filter": false
     },
     {
-      "name": "extrafields",
-      "description": "champs supplémentaires formatés au format JSON. Contient notamment la valeur 'cleabs' qui est l’identifiant unique dans la BD TOPO.",
+      "name": "nic",
+      "description": "L'identifiant cadastral",
       "type": "string",
       "queryable": false,
       "filter": false
     },
     {
-      "name": "truegeometry",
-      "description": "la géometrie réelle",
+      "name": "lot",
+      "description": "Numéro de lot",
+      "type": "string",
+      "queryable": false,
+      "filter": false
+    },
+    {
+      "name": "lotissement",
+      "description": "Lotissement",
+      "type": "string",
+      "queryable": false,
+      "filter": false
+    },
+    {
+      "name": "section",
+      "description": "Section cadastrale",
+      "type": "string",
+      "queryable": false,
+      "filter": false
+    },
+    {
+      "name": "typologie",
+      "description": "Typologie cadastrale",
+      "type": "string",
+      "queryable": false,
+      "filter": false
+    },
+    {
+      "name": "surf_cad",
+      "description": "Surface cadastrale",
       "type": "string",
       "queryable": false,
       "filter": false

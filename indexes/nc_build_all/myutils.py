@@ -55,7 +55,8 @@ def get_geodf_from_featureservice(feature_layer_url, limit=None):
             'outFields': '*',  # Récupérer tous les champs
             'f': 'geojson',  # Format GeoJSON
             'resultOffset': offset,  # Offset pour la pagination
-            'resultRecordCount': limit  # Limite des enregistrements par requête
+            'resultRecordCount': limit,  # Limite des enregistrements par requête
+            'outSR': 4326 # NB : on demande du WGS84 en sortie pour avoir directement des lon / lat
         }
 
         # Effectuer la requête

@@ -17,9 +17,10 @@ export function validateSearchgeom(searchgeom) {
     throw createError(400, 'geometry object must have a \'type\' property')
   }
 
+  // NB : seule les geometries circle et polygon sont autorisees
   const allowedGeometryTypes = new Set([
-    'Point',
-    'LineString',
+    //'Point',
+    //'LineString',
     'Polygon',
     'Circle'
   ])
@@ -62,8 +63,8 @@ export const PARAMS = {
       validateSearchgeom(v)
     },
     operation: 'reverse',
-    description: 'géométrie de recherche par intersection spatiale. Les géométries autorisées sont : Point, LineString, Polygon et Circle. LineString et Point sont inopérants pour l’index address.',
-    example: '{"type":"Polygon","coordinates":[[[2.354550,48.837961],[2.354550,48.839232],[2.357211,48.839232],[2.357211,48.837961],[2.354550,48.837961]]]}'
+    description: 'géométrie de recherche par intersection spatiale. Les géométries autorisées sont : Polygon et Circle. LineString et Point sont inopérants pour tous les index.',
+    example: '{"type":"Polygon","coordinates":[[[166.47425293922427,-22.27873203987504],[166.47491812705996,-22.28007726844695],[166.47783637046817,-22.28009216020375],[166.47673130035403,-22.27776902697212],[166.47527217864993,-22.27779384697554],[166.47425293922427,-22.27873203987504]]]}'
   },
 
   q: {
@@ -74,8 +75,8 @@ export const PARAMS = {
       }
     },
     operation: 'search',
-    description: 'chaîne décrivant la localisation à rechercher',
-    example: '73 Avenue de Paris Saint-Mandé'
+    description: 'Chaîne décrivant la localisation à rechercher',
+    example: '127 rue Daly'
   },
 
   limit: {
@@ -86,7 +87,7 @@ export const PARAMS = {
         throw new Error('must be an integer between 1 and 20')
       }
     },
-    description: 'nombre maximum de candidats retournés',
+    description: 'Nombre maximum de candidats retournés',
     example: '5'
   },
 
@@ -97,8 +98,8 @@ export const PARAMS = {
         throw new Error('must be a float between -180 and 180')
       }
     },
-    description: 'longitude d’un localisant pour favoriser les candidats les plus proches',
-    example: '2.327640'
+    description: 'Longitude d’un localisant pour favoriser les candidats les plus proches',
+    example: '166.47527'
   },
 
   lat: {
@@ -108,15 +109,15 @@ export const PARAMS = {
         throw new Error('must be a float between -90 and 90')
       }
     },
-    description: 'latitude d’un localisant pour favoriser les candidats les plus proches',
-    example: '48.835187'
+    description: 'Latitude d’un localisant pour favoriser les candidats les plus proches',
+    example: '-22.27779'
   },
 
   type: {
     type: 'string',
     allowedValues: ['housenumber', 'street', 'locality', 'municipality'],
     description: 'filtre pour l’index address. Il permet de filtrer par type de données adresse : numéro de maison, rue, commune, ...',
-    example: 'municipality'
+    example: 'housenumber'
   },
 
   postcode: {
@@ -126,8 +127,8 @@ export const PARAMS = {
         throw new Error('must contain 5 digits')
       }
     },
-    description: 'filtre pour les index address et poi. Il permet de filtrer les résultats par code postal',
-    example: '94160'
+    description: 'filtre pour index address uniquement. Il permet de filtrer les résultats par code postal',
+    example: '98800'
   },
 
   citycode: {
@@ -149,13 +150,13 @@ export const PARAMS = {
       }
     },
     description: 'filtre pour les index address et poi. Il permet de filtrer par nom de commune',
-    example: 'saint-mandé'
+    example: 'KONE'
   },
 
   category: {
     type: 'string',
     description: 'filtre pour l’index poi. Il permet de filtrer par catégorie de poi',
-    example: 'administratif'
+    example: 'Administratif'
   },
 
   returntruegeometry: {
