@@ -3,18 +3,18 @@
   "description": "points d'intérêt",
   "fields": [
     {
-      "name": "id",
-      "description": "identifiant",
-      "type": "string",
-      "queryable": false,
-      "filter": false
-    },
-    {
       "name": "category",
       "description": "le type du lieu",
       "type": "string",
       "queryable": true,
       "filter": true
+    },
+    {
+      "name": "id",
+      "description": "identifiant",
+      "type": "string",
+      "queryable": false,
+      "filter": false
     },
     {
       "name": "type",
@@ -24,8 +24,15 @@
       "filter": true
     },
     {
-      "name": "toponyme",
+      "name": "toponym",
       "description": "le toponyme",
+      "type": "string",
+      "queryable": true,
+      "filter": false
+    },
+    {
+      "name": "source",
+      "description": "Source du POI",
       "type": "string",
       "queryable": true,
       "filter": false

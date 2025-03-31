@@ -72,15 +72,8 @@
       "filter": true
     },
     {
-      "name": "district",
-      "description": "nom de l’arrondissement (Paris/Lyon/Marseille)",
-      "type": "string",
-      "queryable": false,
-      "filter": false
-    },
-    {
       "name": "context",
-      "description": "n° de département, nom de département et de région",
+      "description": "Contexte",
       "type": "string",
       "queryable": false,
       "filter": false

@@ -1,11 +1,11 @@
 {
   "info": {
-    "name": "Service de Géocodage de la Géoplateforme",
-    "title": "Service de Géocodage de la Géoplateforme",
-    "description": "Géoplateforme - Service de Géocodage de la Geoplateforme.",
+    "name": "API Localisation Nouvelle-Calédonie",
+    "title": "API Localisation Nouvelle-Calédonie",
+    "description": "API Localisation Nouvelle-Calédonie",
     "language": "Français",
     "contact": {
-      "email": "geoplateforme@ign.fr"
+      "email": "data@gouv.nc"
     }
   },
   "api": {

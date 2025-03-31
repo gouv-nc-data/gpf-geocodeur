@@ -7,7 +7,7 @@ const {CAD_INDEX_URL} = process.env
 
 const FILTERS = [
   'citycode',
-  'postcode',
+  //'postcode',
   'category',
   'nic',
   'section'

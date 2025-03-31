@@ -7,7 +7,7 @@ const {POI_INDEX_URL} = process.env
 
 const FILTERS = [
   'citycode',
-  'postcode',
+  //'postcode',
   'category'
 ]
 

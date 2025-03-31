@@ -1,9 +1,16 @@
 openapi: 3.0.1
 info:
-  title: Service de géocodage
-  description: API du service de géocodage 2.0 de Nouvelle-Calédonie.
-  contact:
-    email: contact.geoservices@ign.fr
+  title: API Localisation Nouvelle-Calédonie
+  description: "L’API permet d’interroger facilement les données de localisation de Nouvelle-Calédonie basées sur:
+les adresses
+les parcelles cadastrales
+les points d’intérêt (POI)
+En intégrant l'API dans votre système d'information, vous pouvez facilement:
+rechercher une localisation
+faire de l'autocomplétion et de la vérification de localisation
+géolocaliser une localisation sur une carte
+faire une recherche géographique inversée (trouver la localisation la plus proche de coordonnées géographiques)
+"
   version: 2.0.0
 servers:
   - url: $API_URL
@@ -44,9 +51,9 @@ paths:
           description: "chaîne décrivant la localisation à rechercher<br>
 
             Exemples de requêtes:<br>
-            - /search?q=45 route despointes<br>
-            - /search?q=cimetière nouméa<br>
-            - /search?q=lot 45 gouaro"
+              - /search?q=127 rue daly<br>
+              - /search?q=mediatheque dumbea<br>
+              - /search?q=lot 18 koniambo"
           required: true
           schema:
             type: string
@@ -54,31 +61,30 @@ paths:
           in: query
           description: "index(es) de recherche :<br>
             - <b>address</b> pour la recherche par adresse<br>
-            - <b>cadastre</b> pour la recherche par centroide de Cadastrele cadastrale<br>
-            - <b>poi</b> pour la recherche par lieu et unité administrative<br>
+            - <b>cadastre</b> pour la recherche par centroide de parcelle cadastrale<br>
+            - <b>poi</b> pour la recherche par point d'interêt(administrations, lieux-dits, équipements publics, tribus, voies nommées, etc.)<br>
 
             Il est possible de spécifier plusieurs indexes séparés par une virgule.
 
-            Exemples:
-            - /search?index=cadastre
+            <br>Exemples:<br>
             - /search?index=poi,address"
           required: false
           schema:
             $ref: "#/components/schemas/Index"
         - name: limit
           in: query
-          description: nombre maximum de candidats retournés (entre 1 et 20)
+          description: Nombre maximum de candidats retournés (entre 1 et 20)
           schema:
             type: integer
             default: 10
         - name: lat
           in: query
-          description: "latitude d'un localisant pour favoriser les candidats les plus proches."
+          description: "Latitude d'un localisant pour favoriser les candidats les plus proches."
           schema:
             type: number
         - name: lon
           in: query
-          description: "longitude d'un localisant pour favoriser les candidats les plus proches."
+          description: "Longitude d'un localisant pour favoriser les candidats les plus proches."
           schema:
             type: number
         - name: returntruegeometry
@@ -148,15 +154,10 @@ paths:
             'Géométrie de recherche. La géométrie est réalisé par intersection géométrique. Si ce paramètre est utilisé seul, c''est que l''on souhaite une recherche sans ordonnancement des résultats (tous les objets intersectant la géométrie de recherche ont un score de 1).<br>
             Si on veut ordonner les résultats, on peut alors utiliser les paramètres lon et lat pour préciser un point d''ordonnancement. <br>
             Ce paramètre n''est pas obligatoire pour des raisons de rétro-compatibilité. Si searchgeom n''est pas utilisé alors les paramètres lon et lat doivent l''être et on parle de point de recherche. <br>
-            Lorsque la recherche est réalisée par intersection géométrique. Les types géométrique autorisés sont :
-
-            - Point
-
-            - LineString
-
+            Lorsque la recherche est réalisée par intersection géométrique. Les types géométrique (au format GeoJSON) autorisés sont :
             - Polygon
-
-            - Circle<br>
+            - Circle
+            <br>
             Exemple de géométrie de type Circle :<br>
             {<br>
             &nbsp;&nbsp;&nbsp;&nbsp;"type": "Circle",<br>
@@ -384,6 +385,12 @@ components:
         name:
           type: string
           description: "Libellé"
+        toponym:
+          type: string
+          description: "Libellé abrégé"
+        categorie:
+          type: string
+          enum: ["Cadastre"]
         citycode:
           type: string
           description: "Code (INSEE) de la commune"
@@ -402,39 +409,34 @@ components:
         section:
           type: string
           description: "Section cadastrale"
+        typologie:
+          type: string
+          description: "Typologie cadastrale"
+        surf_cad:
+          type: string
+          description: "Surface cadastrale"
         truegeometry:
           $ref: "#/components/schemas/GeometryPolygon"
-        _score:
+        score:
           type: number
         _type:
           type: string
-          enum: ["Cadastre"]
+          enum: ["cadastre"]
       example:
-        id: "75056104AV0133"
-        departmentcode: "75"
-        municipalitycode: "056"
-        city: Paris
-        oldmunicipalitycode: "000"
-        districtcode: "104"
-        section: "AV"
-        number: "133"
-        sheet: 1
-        truegeometry:
-          {
-            "type": "Polygon",
-            "coordinates":
-              [
-                [
-                  [2.35457222187139, 48.8523027661354],
-                  [2.35463049659443, 48.8523731401755],
-                  [2.35465580843827, 48.8523650925735],
-                  [2.35464724014948, 48.8522756505323],
-                  [2.35457222187139, 48.8523027661354],
-                ],
-              ],
-          }
-        _score: 1
-        _type: "Cadastre"
+        id: "652543-4035"
+        name: "Lot 36 LOTISSEMENT SOULARD 2EME PARTIE PONT DES FRANCAIS - 652543-4035"
+        toponym: "Lot 36 LOTISSEMENT SOULARD 2EME PARTIE PONT DES FRANCAIS"
+        category: "CADASTRE"
+        citycode: "98817"
+        city: "MONT DORE"
+        nic: "652543-4035"
+        lot: "36"
+        lotissement: "LOTISSEMENT SOULARD 2EME PARTIE"
+        section: "PONT DES FRANCAIS"
+        typologie: "PRIVE"
+        surf_cad: "0ha 15a 90ca "
+        score": 0.6363636363636362
+        _type: "cadastre"
 
     CadastreReverse:
       type: object
@@ -456,6 +458,12 @@ components:
         name:
           type: string
           description: "Libellé"
+        toponym:
+          type: string
+          description: "Libellé abrégé"
+        categorie:
+          type: string
+          enum: ["Cadastre"]
         citycode:
           type: string
           description: "Code (INSEE) de la commune"
@@ -474,41 +482,36 @@ components:
         section:
           type: string
           description: "Section cadastrale"
+        typologie:
+          type: string
+          description: "Typologie cadastrale"
+        surf_cad:
+          type: string
+          description: "Surface cadastrale"
         truegeometry:
           $ref: "#/components/schemas/GeometryPolygon"
-        _score:
+        score:
           type: number
         _type:
           type: string
-          enum: ["Cadastre"]
+          enum: ["cadastre"]
         distance:
           type: number
       example:
-        id: "75056104AV0133"
-        departmentcode: "75"
-        municipalitycode: "056"
-        city: Paris
-        oldmunicipalitycode: "000"
-        districtcode: "104"
-        section: "AV"
-        number: "133"
-        sheet: 1
-        truegeometry:
-          {
-            "type": "Polygon",
-            "coordinates":
-              [
-                [
-                  [2.35457222187139, 48.8523027661354],
-                  [2.35463049659443, 48.8523731401755],
-                  [2.35465580843827, 48.8523650925735],
-                  [2.35464724014948, 48.8522756505323],
-                  [2.35457222187139, 48.8523027661354],
-                ],
-              ],
-          }
-        _score: 1
-        _type: "Cadastre"
+        id: "652543-4035"
+        name: "Lot 36 LOTISSEMENT SOULARD 2EME PARTIE PONT DES FRANCAIS - 652543-4035"
+        toponym: "Lot 36 LOTISSEMENT SOULARD 2EME PARTIE PONT DES FRANCAIS"
+        category: "CADASTRE"
+        citycode: "98817"
+        city: "MONT DORE"
+        nic: "652543-4035"
+        lot: "36"
+        lotissement: "LOTISSEMENT SOULARD 2EME PARTIE"
+        section: "PONT DES FRANCAIS"
+        typologie: "PRIVE"
+        surf_cad: "0ha 15a 90ca "
+        score": 0.6363636363636362
+        _type: "cadastre"
         distance: 100
 
     Address:
@@ -529,14 +532,13 @@ components:
           description: "Libellé complet de l'adresse"
         id:
           type: string
+        banId:
+          type: string
         postcode:
           $ref: "#/components/schemas/PostalCode"
         city:
           type: string
           description: "Commune de l'adresse"
-        district:
-          type: string
-          description: "Arrondissement de l'adresse"
         street:
           type: string
           description: "Rue de l'adresse"
@@ -552,8 +554,6 @@ components:
           description: "Latitude de l'adresse"
         score:
           type: number
-        _score:
-          type: number
         name:
           type: string
         type:
@@ -561,30 +561,28 @@ components:
           enum: ["housenumber", "street", "locality", "municipality"]
         _type:
           type: string
-          enum: ["address"]
           description: "Rétro-compatibilité"
         context:
           type: string
         importance:
           type: number
       example:
-        label: "10 Rue Nationale 75013 Paris 13e Arrondissement"
-        id: "test-id"
-        postcode: "75013"
-        city: "Paris"
-        district: "Paris 13e Arrondissement"
-        street: "Rue Nationale"
-        housenumber: "10"
-        citycode: "75113"
-        x: 2.369063
-        y: 48.822409
-        score: 0.6515151515151515
-        _score: 0.6515151515151515
-        name: "10 Rue Nationale"
+        label: "127 Rue Arnold Daly 98800 Nouméa"
+        id: "98818_pu4ah0_00127"
+        banId: "34196d04-39ef-4a6d-8966-180693012700"
+        postcode: "98800"
+        city: "Nouméa"
+        street: "Rue Arnold Daly"
+        housenumber: "127"
+        citycode: "98818"
+        x: 166.476749
+        y: -22.277643
+        score: 0.5716690909090909
+        name: "127 Rue Arnold Daly"
         type: "housenumber"
         _type: "address"
-        contexte: "75, Paris"
-        importance: "0.6"
+        contexte: "988, Nouvelle-Calédonie"
+        importance: "0.78836"
 
     AddressReverse:
       type: object
@@ -609,9 +607,6 @@ components:
         city:
           type: string
           description: "Commune de l'adresse"
-        district:
-          type: string
-          description: "Arrondissement de l'adresse"
         street:
           type: string
           description: "Rue de l'adresse"
@@ -627,8 +622,6 @@ components:
           description: "Latitude de l'adresse"
         score:
           type: number
-        _score:
-          type: number
         name:
           type: string
         type:
@@ -636,7 +629,6 @@ components:
           enum: ["housenumber", "street", "locality", "municipality"]
         _type:
           type: string
-          enum: ["address"]
           description: "Rétro-compatibilité"
         context:
           type: string
@@ -645,23 +637,22 @@ components:
         distance:
           type: number
       example:
-        label: "10 Rue Nationale 75013 Paris 13e Arrondissement"
-        id: "test-id"
-        postcode: "75013"
-        city: "Paris"
-        district: "Paris 13e Arrondissement"
-        street: "Rue Nationale"
-        housenumber: "10"
-        citycode: "75113"
-        x: 2.369063
-        y: 48.822409
-        score: 0.6515151515151515
-        _score: 0.6515151515151515
-        name: "10 Rue Nationale"
+        label: "127 Rue Arnold Daly 98800 Nouméa"
+        id: "98818_pu4ah0_00127"
+        banId: "34196d04-39ef-4a6d-8966-180693012700"
+        postcode: "98800"
+        city: "Nouméa"
+        street: "Rue Arnold Daly"
+        housenumber: "127"
+        citycode: "98818"
+        x: 166.476749
+        y: -22.277643
+        score: 0.5716690909090909
+        name: "127 Rue Arnold Daly"
         type: "housenumber"
         _type: "address"
-        contexte: "75, Paris"
-        importance: "0.6"
+        contexte: "988, Nouvelle-Calédonie"
+        importance: "0.78836"
         distance: 100
 
     Poi:
@@ -686,6 +677,9 @@ components:
         toponym:
           type: string
           description: "Libellé abrégé du toponyme"
+        source:
+          type: string
+          description: "La source du POI"
         citycode:
           type: array
           items:
@@ -701,35 +695,22 @@ components:
           description: "Type détaillé de POI"
         truegeometry:
           $ref: "#/components/schemas/Geometry"
-        _score:
+        score:
           type: number
         _type:
           type: string
           enum: ["poi"]
       example:
-        toponym: "Pont National"
-        postcode: [77310, 91100]
-        citycode: [77, 77300, 91, 91450]
-        city: ["Saint-Fargeau-Ponthierry", "Corbeil-Essonnes"]
-        category: ["construction linéaire"]
-        extrafields:
-          {
-            "names": ["pont strasbourg", "pont national"],
-            "cleabs": "CONSLINE0000000060494180",
-          }
-        truegeometry:
-          {
-            "coordinates":
-              [
-                [2.03666899913969, 44.3490469250535, 257],
-                [2.03646952056093, 44.3492684335352, 256.3],
-                [2.03644906780383, 44.3492907599887, 256.3],
-                [2.03630075804051, 44.3494542018237, 256.3],
-              ],
-            "type": "LineString",
-          }
-        _score: 0.5757575757575758
-        _type: "poi"
+        id": "SERAIL_ATLAS_50118"
+        name": "Guichet OPT annexe de Dumbéa Mairie"
+        category": "ADMINISTRATION ET ORGANISME"
+        type": "Etablissement d'utilité publique"
+        citycode": "98805"
+        city": "DUMBEA"
+        source": "Atlas SERAIL"
+        toponym": "Guichet OPT annexe de Dumbéa Mairie"
+        score": "0.6363636363636362"
+        _type": "poi"
 
     PoiReverse:
       type: object
@@ -753,6 +734,9 @@ components:
         toponym:
           type: string
           description: "Libellé abrégé du toponyme"
+        source:
+          type: string
+          description: "La source du POI"
         citycode:
           type: array
           items:
@@ -768,7 +752,7 @@ components:
           description: "Type détaillé de POI"
         truegeometry:
           $ref: "#/components/schemas/Geometry"
-        _score:
+        score:
           type: number
         _type:
           type: string
@@ -776,29 +760,16 @@ components:
         distance:
           type: number
       example:
-        toponym: "Pont National"
-        postcode: [77310, 91100]
-        citycode: [77, 77300, 91, 91450]
-        city: ["Saint-Fargeau-Ponthierry", "Corbeil-Essonnes"]
-        category: ["construction linéaire"]
-        extrafields:
-          {
-            "names": ["pont strasbourg", "pont national"],
-            "cleabs": "CONSLINE0000000060494180",
-          }
-        truegeometry:
-          {
-            "coordinates":
-              [
-                [2.03666899913969, 44.3490469250535, 257],
-                [2.03646952056093, 44.3492684335352, 256.3],
-                [2.03644906780383, 44.3492907599887, 256.3],
-                [2.03630075804051, 44.3494542018237, 256.3],
-              ],
-            "type": "LineString",
-          }
-        _score: 0.5757575757575758
-        _type: "poi"
+        id": "SERAIL_ATLAS_50118"
+        name": "Guichet OPT annexe de Dumbéa Mairie"
+        category": "ADMINISTRATION ET ORGANISME"
+        type": "Etablissement d'utilité publique"
+        citycode": "98805"
+        city": "DUMBEA"
+        source": "Atlas SERAIL"
+        toponym": "Guichet OPT annexe de Dumbéa Mairie"
+        score": "0.6363636363636362"
+        _type": "poi"
         distance: 100
 
     PoiType:
@@ -811,6 +782,42 @@ components:
       minLength: 5
       type: string
       description: "Code postal"
+      enum:
+        - 98800
+        - 98835
+        - 98809
+        - 98889
+        - 98811
+        - 98812
+        - 98870
+        - 98813
+        - 98814
+        - 98815
+        - 98816
+        - 98838
+        - 98817
+        - 98859
+        - 98818
+        - 98850
+        - 98880
+        - 98881
+        - 98882
+        - 98819
+        - 98821
+        - 98822
+        - 98823
+        - 98824
+        - 98825
+        - 98826
+        - 98827
+        - 98828
+        - 98829
+        - 98840
+        - 98831
+        - 98832
+        - 98833
+        - 98820
+        - 98834
 
     InseeCode:
       maxLength: 5
@@ -863,7 +870,7 @@ components:
             type: number
       example:
         type: "Point"
-        coordinates: [2.03648539635326, 44.3492508045369]
+        coordinates: [166.476749, -22.277643]
 
     GeometryPoint:
       type: object
@@ -877,7 +884,7 @@ components:
             type: number
       example:
         type: "Point"
-        coordinates: [2.03648539635326, 44.3492508045369]
+        coordinates: [166.476749, -22.277643]
 
     GeometryCircle:
       type: object
