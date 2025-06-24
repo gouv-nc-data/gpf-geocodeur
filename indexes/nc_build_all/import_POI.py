@@ -82,7 +82,7 @@ refil_df = myutils.get_df_from_xlsx_url(refil_xlsx_url, os.path.join(output_fold
 #################### ATLAS SERAIL #################
 logger.info("--- Atlas SERAIL ---")
 logger.info("point_Geo vers X et Y...")
-atlas_df[['lat', 'lon']] = refil_df['geo_point_2d'].str.split(', ', expand=True)
+atlas_df[['lat', 'lon']] = atlas_df['geo_point_2d'].str.split(', ', expand=True)
 atlas_df['lon'] = atlas_df['lon'].astype(float) 
 atlas_df['lat'] = atlas_df['lat'].astype(float) 
 
