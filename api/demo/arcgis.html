@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>Localisations NC as Esri Geocoder - demo</title>
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+
+    <link rel="stylesheet" href="https://js.arcgis.com/4.32/esri/themes/light/main.css" />
+    <script src="https://js.arcgis.com/4.32/"></script>
+
+    <script>
+      require(["esri/Map", "esri/views/SceneView", "esri/widgets/Search", "esri/widgets/CoordinateConversion"], (Map, SceneView, Search, CoordinateConversion) => {
+        const map = new Map({
+          basemap: "satellite",
+          ground: "world-elevation"
+        });
+
+        const view = new SceneView({
+          zoom: 8,
+          container: "viewDiv",
+          map: map,
+          center: [166, -22]
+        });
+
+        const searchWidget = new Search({
+          view: view,
+          sources:[
+            {
+              name: "Localisations NC",
+              placeholder: "Recherche d'une localisation",
+              singleLineFieldName: "SingleLine",
+              url: "/arcgis/rest/services/localisations/GeocodeServer"
+            },
+            {
+              name: "Adresses NC",
+              placeholder: "Recherche d'une adresse",
+              singleLineFieldName: "SingleLine",
+              url: "/arcgis/rest/services/adresses/GeocodeServer"
+            },
+            {
+              name: "Parcelle NC",
+              placeholder: "Recherche d'une parcelle",
+              singleLineFieldName: "SingleLine",
+              url: "/arcgis/rest/services/cadastre/GeocodeServer"
+            },
+            {
+              name: "POI NC",
+              placeholder: "Recherche d'un POI",
+              singleLineFieldName: "SingleLine",
+              url: "/arcgis/rest/services/pois/GeocodeServer"
+            }
+          ],
+          includeDefaultSources: false,
+          /*locationEnabled: true,
+          maxResults: 10,
+          maxSuggestions: 6,*/
+          searchAllEnabled: false,
+          //autoSelect: false
+        });
+
+        // Add the search widget to the top right corner of the view
+        view.ui.add(searchWidget, {
+          position: "top-right"
+        });
+
+        searchWidget.on("select-result", (event) => {
+          console.log("select-result", event);
+          view.goTo(event.result.extent);
+        });
+        searchWidget.on("search-complete", (event) => {
+          console.log("search-complete", event);
+        });
+		searchWidget.on("suggest-complete", (event) => {
+          console.log("suggest-complete", event.results.results);
+        });
+		
+		let ccWidget = new CoordinateConversion({
+		  view: view
+		});
+
+		// Adds widget in the bottom left corner of the view
+		view.ui.add(ccWidget, "bottom-left");
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+  </body>
+</html>

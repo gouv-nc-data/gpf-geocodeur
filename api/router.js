@@ -2,6 +2,7 @@ import process from 'node:process'
 import path from 'node:path'
 import {mkdir} from 'node:fs/promises'
 import express from 'express'
+import cors from 'cors';
 import multer from 'multer'
 
 import w from '../lib/w.js'
@@ -21,6 +22,8 @@ import computeAutocompleteCapabilities from './capabilities/autocomplete.js'
 import {editConfig} from './open-api/edit-config.js'
 import {computeHtmlPage} from './open-api/swagger-ui.js'
 
+import { esri_responses, getSearchParamsInEsriGeocode, searchResult2Candidates, getSuggestsParamsInEsriGeocode, getReverseParamsInEsriGeocode, searchResult2Suggests, reverseResult2Adress, getOutSr }from './esriGeocode.js';
+
 import {csv, parseAndValidate} from './csv/index.js'
 
 const DEFAULT_UPLOAD_DIR = 'uploads/'
@@ -32,9 +35,139 @@ export default async function createRouter(options = {}) {
   await mkdir(uploadDir, {recursive: true})
 
   const router = new express.Router()
+
+  // Activer CORS pour toutes les routes
+  router.use(cors());
+
   const upload = multer({dest: uploadDir, limits: {fileSize: 50 * 1024 * 1024}}) // 50MB
 
   const indexes = options.customIndexes || createIndexes(options.indexes || GEOCODE_INDEXES)
+
+
+  /******************************************************************************************************************/
+  /****************************** DEBUT fake Esri GeocodeServer *****************************************************/
+  /***************************** Esri geocoder fake arcgis server info */
+  const georepInfoHandle = async (req, res) => {
+    res.send(esri_responses.info)
+  }
+  router.get('/arcgis/rest/info', w(georepInfoHandle));
+  router.get('/rest/info', w(georepInfoHandle));
+
+  /** Esri geocoder fake arcgis server rest/services */
+  const georepServicesHandle = async (req, res) => {
+    res.send(esri_responses.services)
+  }
+  router.get('/arcgis/rest/services', w(georepServicesHandle));
+  router.get('/rest/services', w(georepServicesHandle));
+
+
+  /***************************** Esri geocoder fake service */
+  const georepGeocodeServiceHandler = async (req, res) => {
+    res.send(esri_responses.service)
+  }
+  router.get('/arcgis/rest/services/localisations/GeocodeServer', w(georepGeocodeServiceHandler));
+  router.get('/rest/services/localisations/GeocodeServer', w(georepGeocodeServiceHandler));
+  router.get('/arcgis/rest/services/adresses/GeocodeServer', w(georepGeocodeServiceHandler));
+  router.get('/rest/services/adresses/GeocodeServer', w(georepGeocodeServiceHandler));
+  router.get('/arcgis/rest/services/cadastre/GeocodeServer', w(georepGeocodeServiceHandler));
+  router.get('/rest/services/cadastre/GeocodeServer', w(georepGeocodeServiceHandler));
+  router.get('/arcgis/rest/services/pois/GeocodeServer', w(georepGeocodeServiceHandler));
+  router.get('/rest/services/pois/GeocodeServer', w(georepGeocodeServiceHandler));
+
+  /***************************** Esri geocoder fake service : findAddressCandidates (=search)*/
+  const georepServiceFindAddressCandidatesHandler = async (req, res) => {
+    const outWkid = getOutSr(req.query);
+    const params = getSearchParamsInEsriGeocode(req.query);
+    if(req.url.indexOf("/localisations/GeocodeServer") > 1){
+      // Rien
+    }
+    else if(req.url.indexOf("/adresses/GeocodeServer") > 1){
+      params.indexes = ['address'];
+    }
+    else if(req.url.indexOf("/cadastre/GeocodeServer") > 1){
+      params.indexes = ['cadastre'];
+    }
+    else if(req.url.indexOf("/pois/GeocodeServer") > 1){
+      params.indexes = ['poi'];
+    }
+    const results = await search(params, {indexes});
+    res.send(searchResult2Candidates(results, outWkid));
+  }
+  router.get('/arcgis/rest/services/localisations/GeocodeServer/findAddressCandidates', w(georepServiceFindAddressCandidatesHandler));
+  router.get('/rest/services/localisations/GeocodeServer/findAddressCandidates', w(georepServiceFindAddressCandidatesHandler));
+  router.get('/arcgis/rest/services/adresses/GeocodeServer/findAddressCandidates', w(georepServiceFindAddressCandidatesHandler));
+  router.get('/rest/services/adresses/GeocodeServer/findAddressCandidates', w(georepServiceFindAddressCandidatesHandler));
+  router.get('/arcgis/rest/services/cadastre/GeocodeServer/findAddressCandidates', w(georepServiceFindAddressCandidatesHandler));
+  router.get('/rest/services/cadastre/GeocodeServer/findAddressCandidates', w(georepServiceFindAddressCandidatesHandler));
+  router.get('/arcgis/rest/services/pois/GeocodeServer/findAddressCandidates', w(georepServiceFindAddressCandidatesHandler));
+  router.get('/rest/services/pois/GeocodeServer/findAddressCandidates', w(georepServiceFindAddressCandidatesHandler));
+
+  /***************************** Esri geocoder fake service : suggest (=completion)*/
+  const georepServiceSuggestHandler = async (req, res) => {
+    const params = getSuggestsParamsInEsriGeocode(req.query);
+    if(req.url.indexOf("/localisations/GeocodeServer") > 1){
+      // Rien
+    }
+    else if(req.url.indexOf("/adresses/GeocodeServer") > 1){
+      params.type = ['StreetAddress'];
+    }
+    else if(req.url.indexOf("/cadastre/GeocodeServer") > 1){
+      params.type = ['Cadastre'];
+    }
+    else if(req.url.indexOf("/pois/GeocodeServer") > 1){
+      params.type = ['PositionOfInterest'];
+    }
+
+    try {
+      const results = await autocomplete(params, {indexes})
+      res.send(searchResult2Suggests(results))
+    } catch (error) {
+      res.send({
+        status: 'Error',
+        error: error.message
+      })
+    }
+  }
+  router.get('/arcgis/rest/services/localisations/GeocodeServer/suggest', w(georepServiceSuggestHandler));
+  router.get('rest/services/localisations/GeocodeServer/suggest', w(georepServiceSuggestHandler));
+  router.get('/arcgis/rest/services/adresses/GeocodeServer/suggest', w(georepServiceSuggestHandler));
+  router.get('rest/services/adresses/GeocodeServer/suggest', w(georepServiceSuggestHandler));
+  router.get('/arcgis/rest/services/cadastre/GeocodeServer/suggest', w(georepServiceSuggestHandler));
+  router.get('rest/services/cadastre/GeocodeServer/suggest', w(georepServiceSuggestHandler));
+  router.get('/arcgis/rest/services/pois/GeocodeServer/suggest', w(georepServiceSuggestHandler));
+  router.get('rest/services/pois/GeocodeServer/suggest', w(georepServiceSuggestHandler));
+  /****************************** FIN fake Esri GeocodeServer *******************************************************/
+  /******************************************************************************************************************/
+  /***************************** Esri geocoder fake service : reverseGeocode (=reverse)*/
+  const georepServiceReverseHandler = async (req, res) => {
+    const params = getReverseParamsInEsriGeocode(req.query);
+    const outWkid = getOutSr(req.query);
+    if(req.url.indexOf("/localisations/GeocodeServer") > 1){
+      // Rien
+    }
+    else if(req.url.indexOf("/adresses/GeocodeServer") > 1){
+      params.indexes = ['address'];
+    }
+    else if(req.url.indexOf("/cadastre/GeocodeServer") > 1){
+      params.indexes = ['cadastre'];
+    }
+    else if(req.url.indexOf("/pois/GeocodeServer") > 1){
+      params.indexes = ['poi'];
+    }
+    const results = await reverse(params, {indexes});
+    res.send(reverseResult2Adress(results, outWkid));
+  }
+  router.get('/arcgis/rest/services/localisations/GeocodeServer/reverseGeocode', w(georepServiceReverseHandler));
+  router.get('rest/services/localisations/GeocodeServer/reverseGeocode', w(georepServiceReverseHandler));
+  router.get('/arcgis/rest/services/adresses/GeocodeServer/reverseGeocode', w(georepServiceReverseHandler));
+  router.get('rest/services/adresses/GeocodeServer/reverseGeocode', w(georepServiceReverseHandler));
+  router.get('/arcgis/rest/services/cadastre/GeocodeServer/reverseGeocode', w(georepServiceReverseHandler));
+  router.get('rest/services/cadastre/GeocodeServer/reverseGeocode', w(georepServiceReverseHandler));
+  router.get('/arcgis/rest/services/pois/GeocodeServer/reverseGeocode', w(georepServiceReverseHandler));
+  router.get('rest/services/pois/GeocodeServer/reverseGeocode', w(georepServiceReverseHandler));
+  /****************************** FIN fake Esri GeocodeServer *******************************************************/
+  /******************************************************************************************************************/
+
 
   router.get('/search', w(async (req, res) => {
     const params = extractSearchParams(req.query)
@@ -141,9 +274,7 @@ export default async function createRouter(options = {}) {
     res.sendStatus(404)
   })
 
-  router.get('/demo', (req, res) => {
-    res.sendFile(path.join(process.cwd(), 'api', 'index.html'));
-  })
+  router.use('/demo', express.static(path.join(process.cwd(), 'api', 'demo')));  
 
   router.use(errorHandler)
 
