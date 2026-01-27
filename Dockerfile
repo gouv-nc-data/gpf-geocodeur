@@ -1,5 +1,5 @@
 # Stage 1
-FROM bitnami/python:3.10 AS build
+FROM bitnamilegacy/python:3.10 AS build
 
 RUN groupadd --gid 1000 pn && useradd --uid 1000 --gid pn --shell /bin/bash --create-home pn
 ENV POETRY_HOME=/usr/local
@@ -48,7 +48,7 @@ RUN pip install --user -r requirements.txt
 FROM --platform=linux/amd64 redis:7.0 AS redis
 
 # Stage 3
-FROM bitnami/python:3.10
+FROM bitnamilegacy/python:3.10
 
 RUN groupadd --gid 1000 pn && useradd --uid 1000 --gid pn --shell /bin/bash --create-home pn
 ENV POETRY_HOME=/usr/local
