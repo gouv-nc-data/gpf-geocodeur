@@ -9,10 +9,11 @@ on:
       - 'LICENSE'
 
 permissions:
-  contents: read
-  issues: write
   packages: write
+  contents: read
   id-token: write
+  checks: write
+  pull-requests: write
 
 jobs:
   build-push-gcp:
