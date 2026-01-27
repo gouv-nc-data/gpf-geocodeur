@@ -52,7 +52,7 @@ export const PARAMS = {
     array: true,
     required: false,
     allowedValues: ['address', 'poi', 'cadastre'],
-    defaultValue: ['address'],
+    defaultValue: ['address', 'poi', 'cadastre'],
     description: 'index de recherche',
     example: 'address,poi,cadastre'
   },
