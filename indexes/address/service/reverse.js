@@ -1,3 +1,4 @@
+import {omit} from 'lodash-es'
 import distance from '@turf/distance'
 
 import {computeScore} from '../../../lib/spatial-index/util.js'
@@ -19,7 +20,7 @@ export function formatResult(feature, {center}) {
   const result = {
     type: 'Feature',
     geometry: feature.geometry,
-    properties: {...feature.properties}
+    properties: omit(feature.properties, ['oldcitycode', 'oldcity'])
   }
 
   if (center) {

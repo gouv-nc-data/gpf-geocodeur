@@ -511,6 +511,18 @@ export const esri_responses = {
         name: "localisations",
         type: "GeocodeServer",
       },
+      {
+        name: "adresses",
+        type: "GeocodeServer",
+      },
+      {
+        name: "cadastre",
+        type: "GeocodeServer",
+      },
+      {
+        name: "pois",
+        type: "GeocodeServer",
+      }
     ],
   },
   service: {

@@ -194,7 +194,7 @@ export default async function createRouter(options = {}) {
 
     const results = await batch(payload, {indexes})
     res.send({results})
-  }))
+  }))*/
 
   router.post(
     '/search/csv',
@@ -208,7 +208,7 @@ export default async function createRouter(options = {}) {
     upload.single('data'),
     w(parseAndValidate()),
     w(csv({indexes, operation: 'reverse'}))
-  )*/
+  )
 
   router.get('/completion', w(async (req, res) => {
     const params = extractAutocompleteParams(req.query)

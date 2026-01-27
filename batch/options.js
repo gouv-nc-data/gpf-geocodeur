@@ -14,13 +14,13 @@ export function ensureArray(value) {
 
 export function extractIndexes(indexesValue) {
   if (!indexesValue) {
-    return ['address']
+    return ['address', 'poi', 'cadastre']
   }
 
   indexesValue = ensureArray(indexesValue)
 
   if (indexesValue.length === 0) {
-    return ['address']
+    return ['address', 'poi', 'cadastre']
   }
 
   const invalidValue = indexesValue.find(index => !GEOCODE_INDEXES.includes(index))

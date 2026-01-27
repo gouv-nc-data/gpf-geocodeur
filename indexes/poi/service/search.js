@@ -11,7 +11,9 @@ const POI_FIELDS = [
   'city',
   'extrafields',
   'classification',
-  'territory'
+  'territory',
+  'source',
+  'toponym'
 ]
 
 export async function search(params, {db, addokCluster, priority, signal}) {

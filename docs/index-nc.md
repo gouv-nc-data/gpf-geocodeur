@@ -37,14 +37,24 @@ La source est donc l'url de la couche du FeatureService Esri publié dans le clo
 
 Les POI sont générés via le script python indexes/nc_build_all/import_POI.py (pour générer le poi.ndjson) et la commande de génération des indexes standard. Cela nécessite les varaibles d'environnement suivantes :
 - BDLOC_FEATURE_SERVICE_LAYER= https://services1.arcgis.com/TZcrgU6CIbqWt9Qv/ArcGIS/rest/services/BDLOC/FeatureServer/13
-- ATLAS_FEATURE_SERVICE_LAYER=https://services1.arcgis.com/TZcrgU6CIbqWt9Qv/ArcGIS/rest/services/atlas_equipements_publics_serail/FeatureServer/0
+  - Url de la couche des POIs de la BDLOC dans le Feature Service de l'open data du SIG du gouvernement
+- BDLOC_VOIE_FEATURE_SERVICE_LAYER: https://services1.arcgis.com/TZcrgU6CIbqWt9Qv/ArcGIS/rest/services/BDLOC/FeatureServer/12
+  - Url de la couche des POIs de la BDLOC dans le Feature Service de l'open data du SIG du gouvernement NC
+- ATLAS_XLSX_URL: https://data.gouv.nc/api/explore/v2.1/catalog/datasets/atlas-equipements-publics-serail/exports/xlsx
+  - Url de l'export xlsx de l'atlas SERAIL dans l'opendata du gouvernement NC
 - REFIL_XLSX_URL= https://data.gouv.nc/api/explore/v2.1/catalog/datasets/referentiel-des-immeubles-localises-refil/exports/xlsx
+  - Url de l'export xlsx du REFIL SERAIL (référentiel des immeubles) dans l'opendata du gouvernement NC
+- BDLOC_POI_CATEGORIES_TO_REMOVE: AGRIC,DECHET,ENERGIE,EQ_SPORT,PARC,SITE,TOURISME
+  - Dans les POIs BDLOC, liste des catégories à ne pas conserver.
+- BDLOC_POI_TYPES_TO_REMOVE: Biblio,Cculturel,Cinema,Mon,Musee,Theatre,Hydronyme,Oronyme,Cfuneraire,Cim,Pharma,Paljustice,Pol,Tribun,Arretbus,Cmaint,Heliport,Quai
+  - Dans les POIs BDLOC, liste des types à ne pas conserver.
 - POI_INDEX_MDB_BASE_PATH= ./data/poi/mbd_index
 - POI_INDEX_PATH= ./data/poi/index
 3 sources sont donc utilisées :
 - l'export xlsx du REFIL (immeubles) SERAIL dans l'open data du gouvernement
-- l'url de la couche de l'atlas des  équipement public SERAIL du FeatureService Esri publié dans le cloud esri du gouvernement (pour l'open data Esri du gouv)
+- l'export xlsx de l'atlas des  équipement public SERAIL dans l'open data du gouvernement
 - l'url de la couche des POI BDLOC du FeatureService Esri publié dans le cloud esri du gouvernement (pour l'open data Esri du gouv)
+- l'url de la couche des centres de voie BDLOC du FeatureService Esri publié dans le cloud esri du gouvernement (pour l'open data Esri du gouv)
 NB : le script python produit aussi un fichier categories.json, qui permet de fournir la liste des catégories exposée dans le getCapabilities de l'API
 
 # Spécificité des sous-api (adaptations à la NC)

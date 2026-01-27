@@ -258,7 +258,188 @@ paths:
           description: "Parse query failed"
           content:
             application/json: {}
+  /search/csv:
+    post:
+      tags:
+        - search
+        - batch
+      summary: Géocodage direct en masse d’un fichier CSV
+      description: |
+        Géocodage direct en masse d’un fichier CSV. Les paramètres de la requête permettent de spécifier les colonnes à utiliser pour le géocodage, les index à utiliser, les filtres à appliquer et les colonnes à conserver dans le fichier CSV de sortie.
 
+        Le fichier soumis doit faire une taille maximale de 50 Mo.
+      operationId: searchCsv
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - data
+              properties:
+                data:
+                  type: string
+                  format: binary
+                  description: "Fichier CSV contenant les lignes à géocoder"
+                columns:
+                  type: array
+                  items:
+                    type: string
+                  description: |
+                    Liste des colonnes du fichier CSV à utiliser pour le géocodage. Celles-ci seront concaténées pour former le critère de recherche texte.
+
+                    Si le paramètre n'est pas fourni toutes les colonnes seront concaténées, ce qui est rarement souhaitable.
+                indexes:
+                  type: array
+                  items:
+                    type: string
+                  description: "Liste des index à utiliser pour le géocodage (parmi address, poi, cadastre)"
+                type:
+                  type: string
+                  description: "Colonne contenant le type d’objet accepté pour le géocodage de la ligne (address)"
+                citycode:
+                  type: string
+                  description: "Colonne contenant le code INSEE de la commune à utiliser comme filtre (address, poi)"
+                postcode:
+                  type: string
+                  description: "Colonne contenant le code postal à utiliser comme filtre (address, poi)"
+                category:
+                  type: string
+                  description: "Colonne contenant la catégorie de POI à utiliser comme filtre (poi)"
+                lon:
+                  type: string
+                  description: "Colonne contenant la longitude du point de recherche"
+                lat:
+                  type: string
+                  description: "Colonne contenant la latitude du point de recherche"
+                result_columns:
+                  type: array
+                  items:
+                    type: string
+                  description: |
+                    Liste des colonnes de type résultat à conserver dans le fichier CSV de sortie.
+
+                    Par défaut toutes les colonnes disponibles sont retournées.
+            encoding:
+              columns:
+                style: form
+                explode: true
+              result_columns:
+                style: form
+                explode: true
+              indexes:
+                style: form
+                explode: true
+      responses:
+        "200":
+          description: Géocodage réussi
+          content:
+            text/csv:
+              schema:
+                $ref: "#/components/schemas/GeocodeCsvResponse"
+
+        "400":
+          description: "Échec du géocodage suite à une erreur dans la requête ou dans le fichier CSV"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: number
+                    example: 400
+                    description: Code d'erreur (HTTP)
+                  message:
+                    type: string
+                    description: "Message d'erreur"
+                    example: Impossible de lire le fichier CSV
+
+  /reverse/csv:
+    post:
+      tags:
+        - reverse
+        - batch
+      summary: Géocodage inversé en masse d’un fichier CSV
+      description: |
+        Géocodage inversé en masse d’un fichier CSV. Les paramètres de la requête permettent de spécifier les colonnes à utiliser pour le géocodage, les index à utiliser, les filtres à appliquer et les colonnes à conserver dans le fichier CSV de sortie.
+
+        Le fichier soumis doit faire une taille maximale de 50 Mo.
+      operationId: reverseCsv
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - data
+              properties:
+                data:
+                  type: string
+                  format: binary
+                  description: "Fichier CSV contenant les données à géocoder"
+                indexes:
+                  type: array
+                  items:
+                    type: string
+                  description: "Liste des index à utiliser pour le géocodage (parmi address, poi, parcel)"
+                type:
+                  type: string
+                  description: "Colonne contenant le type d’objet accepté pour le géocodage de la ligne (address)"
+                citycode:
+                  type: string
+                  description: "Colonne contenant le code INSEE de la commune à utiliser comme filtre (address, poi)"
+                postcode:
+                  type: string
+                  description: "Colonne contenant le code postal à utiliser comme filtre (address, poi)"
+                category:
+                  type: string
+                  description: "Colonne contenant la catégorie de POI à utiliser comme filtre (poi)"
+                lon:
+                  type: string
+                  description: "Colonne contenant la longitude du point de recherche"
+                lat:
+                  type: string
+                  description: "Colonne contenant la latitude du point de recherche"
+                result_columns:
+                  type: array
+                  items:
+                    type: string
+                  description: |
+                    Liste des colonnes de type résultat à conserver dans le fichier CSV de sortie.
+
+                    Par défaut toutes les colonnes disponibles sont retournées.
+            encoding:
+              result_columns:
+                style: form
+                explode: true
+              indexes:
+                style: form
+                explode: true
+      responses:
+        "200":
+          description: Géocodage réussi
+          content:
+            text/csv:
+              schema:
+                $ref: "#/components/schemas/GeocodeCsvResponse"
+
+        "400":
+          description: "Échec du géocodage suite à une erreur dans la requête ou dans le fichier CSV"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: number
+                    example: 400
+                    description: Code d'erreur (HTTP)
+                  message:
+                    type: string
+                    description: "Message d'erreur"
+                    example: Impossible de lire le fichier CSV
 components:
   schemas:
     Getcapabilities:
@@ -982,7 +1163,7 @@ components:
         - address
         - poi
         - cadastre
-      default: address
+      default: address,poi,cadastre
 
     HouseNumberInfos:
       type: object
@@ -1009,3 +1190,39 @@ components:
           - area
           - postal
           - unknown
+
+    GeocodeCsvResponse:
+      type: string
+      format: binary
+      description: |
+        Fichier CSV géocodé. Les lignes d'origine sont préservées.
+
+        Les colonnes issues de l'objet associé lors du géocodage et pouvant être ajoutées sont :
+        - result_label
+        - result_score
+        - result_type (address)
+        - result_id
+        - result_housenumber (address)
+        - result_name (address)
+        - result_street (address)
+        - result_postcode (address, poi)
+        - result_city (address, poi)
+        - result_context
+        - result_citycode (address, poi)
+        - result_category (poi)
+
+        Les colonnes suivantes sont spécifiques au géocodage direct :
+        - latitude
+        - longitude
+
+        Les colonnes suivantes sont spécifiques au géocodage inversé :
+        - result_latitude
+        - result_longitude
+        - result_distance
+
+        Les colonnes suivantes sont liées au géocodage en masse :
+        - result_score_next : score du résultat suivant le cas échéant
+        - result_index : index dans lequel l'objet a été trouvé
+        - result_status (ok = trouvé, not-found = non trouvé, skipped = ligne ignorée en raison de paramètres manquants ou invalides, error = erreur du serveur lors de la recherche)
+
+        NB : En cas de colonnes d'origine nommées latitude ou longitude et de géocodage direct, elles seront écrasées par les valeurs calculées.
