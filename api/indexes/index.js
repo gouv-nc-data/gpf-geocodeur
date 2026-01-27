@@ -1,6 +1,7 @@
 import createAddressIndex from './address.js'
 import createPoiIndex from './poi.js'
 import createCadIndex from './cadastre.js'
+import { ncModifyBeforeRequestDispatch } from '../ncCustomisations.js'
 
 const INDEX_CONSTRUCTORS = {
   address: createAddressIndex,
@@ -19,6 +20,9 @@ export async function dispatchRequestToIndexes(params, operation, indexes, optio
     if (!(operation in indexes[indexName])) {
       throw new Error(`Unsupported operation: ${operation} with the index: ${indexName}`)
     }
+
+    // Appel customisation NC
+    params = ncModifyBeforeRequestDispatch(indexName, params, operation, indexes, options)
 
     const indexResult = await indexes[indexName][operation](params, options)
     results[indexName] = indexResult
