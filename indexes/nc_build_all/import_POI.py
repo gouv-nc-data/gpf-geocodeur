@@ -224,6 +224,8 @@ poi_result_df = pd.concat([refil_df, atlas_df, bdloc_df, bdloc_voie_df])
 poi_result_df = poi_result_df.merge(category_clean, on="category", how="inner")
 poi_result_df = poi_result_df.merge(type_clean, on="type", how="inner")
 
+# Si pas de complet_cat, on met valeur par defaut LOCALISATION
+
 # clean cat et type label
 name_clean = {
     "category": "old_cat",
