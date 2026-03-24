@@ -99,8 +99,8 @@ atlas_df = atlas_df.rename(columns=com_name)
 myutils.df_compute_code_comm(atlas_df)
 
 # recupérer champ category et type à partir d'un merge
-atlas_df = atlas_df.merge(category_df, on="lib_court", how="inner")
-atlas_df = atlas_df.merge(type_df, on="lib_court", how="inner")
+atlas_df = atlas_df.merge(category_df, on="lib_court", how="left")
+atlas_df = atlas_df.merge(type_df, on="lib_court", how="left")
 
 rename_atlas = {
     "lib_ville": "name",
@@ -221,8 +221,8 @@ logger.info("Combinaison des 3 sources...")
 poi_result_df = pd.concat([refil_df, atlas_df, bdloc_df, bdloc_voie_df])
 
 # Ajouter labelle propre pour category et type
-poi_result_df = poi_result_df.merge(category_clean, on="category", how="inner")
-poi_result_df = poi_result_df.merge(type_clean, on="type", how="inner")
+poi_result_df = poi_result_df.merge(category_clean, on="category", how="left")
+poi_result_df = poi_result_df.merge(type_clean, on="type", how="left")
 
 # clean cat et type label
 name_clean = {
