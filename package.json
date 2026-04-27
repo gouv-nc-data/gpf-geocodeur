@@ -74,7 +74,7 @@
     "natural": "^6.10.4",
     "ndjson": "^2.0.0",
     "nock": "^13.5.4",
-    "nodemailer": "^6.9.15",
+    "nodemailer": "^8.0.5",
     "on-finished": "^2.4.1",
     "p-event": "^6.0.1",
     "p-filter": "^4.1.0",
