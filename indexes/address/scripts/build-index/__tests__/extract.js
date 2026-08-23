@@ -1,8 +1,9 @@
-import {Readable} from 'node:stream'
-import {createGzip} from 'node:zlib'
+import {mkdtemp, rm, writeFile} from 'node:fs/promises'
+import {tmpdir} from 'node:os'
+import path from 'node:path'
+import {gzipSync} from 'node:zlib'
+import {Buffer} from 'node:buffer'
 import test from 'ava'
-import nock from 'nock'
-import ndjson from 'ndjson'
 import {asFeature, extractFeatures} from '../extract.js'
 
 test('asFeature / ok', t => {
@@ -19,22 +20,28 @@ test('asFeature / ok', t => {
   })
 })
 
-function createInputStream(items) {
-  return Readable.from(items).pipe(ndjson.stringify()).pipe(createGzip())
+async function createSourceFile(items) {
+  const tmpDir = await mkdtemp(path.join(tmpdir(), 'extract-test-'))
+  const filePath = path.join(tmpDir, 'adresses.ndjson.gz')
+  const ndjson = items.map(item => JSON.stringify(item)).join('\n') + '\n'
+
+  await writeFile(filePath, gzipSync(Buffer.from(ndjson)))
+
+  return {tmpDir, filePath}
 }
 
 test('extractFeatures', async t => {
-  nock('http://ban')
-    .get('/adresses.ndjson.gz')
-    .reply(200, createInputStream([
-      {id: '1', type: 'locality', name: 'Le Moulin', lon: 1, lat: 2},
-      {id: '2', type: 'street', name: 'Rue des Champs', lon: 3, lat: 4, housenumbers: {
-        1: {id: '3', lon: 10, lat: 11},
-        2: {id: '4', lon: 20, lat: 21}
-      }}
-    ]))
+  const {tmpDir, filePath} = await createSourceFile([
+    {id: '1', type: 'locality', name: 'Le Moulin', lon: 1, lat: 2},
+    {id: '2', type: 'street', name: 'Rue des Champs', lon: 3, lat: 4, housenumbers: {
+      1: {id: '3', lon: 10, lat: 11},
+      2: {id: '4', lon: 20, lat: 21}
+    }}
+  ])
 
-  const iterator = extractFeatures('http://ban/adresses.ndjson.gz')
+  t.teardown(() => rm(tmpDir, {recursive: true, force: true}))
+
+  const iterator = extractFeatures(filePath)
   const features = []
 
   for await (const feature of iterator) {
