@@ -1,29 +1,15 @@
-import 'global-agent/bootstrap.js'
+import {createReadStream} from 'node:fs'
 import {createGunzip} from 'node:zlib'
-import got from 'got'
 import {parse} from 'ndjson'
 import {omit} from 'lodash-es'
 
-export async function * extractFeatures(fileUrl) {
-  const downloadStream = got.stream(fileUrl)
-
-  await new Promise((resolve, reject) => {
-    function onError(errorMessage) {
-      reject(new Error(`Failed to download file at URL: ${fileUrl} => ${errorMessage}`))
-    }
-
-    downloadStream.once('response', response => {
-      if (response.statusCode === 200) {
-        resolve()
-      } else {
-        onError()
-      }
-    })
-
-    downloadStream.once('error', error => onError(error.message))
-  })
-
-  const inputStream = downloadStream
+/**
+ * Lit un fichier NDJSON gzippé BAN/addok déjà téléchargé sur disque et produit
+ * les features à indexer. Le téléchargement est fait en amont (cf. lib/download.js)
+ * afin qu'une source indisponible n'entraîne pas la destruction de l'index existant.
+ */
+export async function * extractFeatures(filePath) {
+  const inputStream = createReadStream(filePath)
     .pipe(createGunzip())
     .pipe(parse())
 
