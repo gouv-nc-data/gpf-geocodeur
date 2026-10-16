@@ -44,7 +44,7 @@ renommage_champs = {
 }
 
 logger.info("Téléchargement du cadastre (centroides) et import en geodataframe...")
-parcelles_df = myutils.get_geodf_from_featureservice(cadastre_fs_url)
+parcelles_df = myutils.get_geodf_from_featureservice(cadastre_fs_url, limit=500)
 
 logger.info("Géométrie vers X et Y...")
 # récupérer x, y dans des champs
