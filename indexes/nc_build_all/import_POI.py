@@ -222,7 +222,7 @@ else:
 ############ FUSION #########################
 logger.info("----------- FUSION -------------")
 logger.info("Combinaison des 3 sources...")
-if bdloc_voie_df:
+if bdloc_voie_df is not None and not bdloc_voie_df.empty:
     poi_result_df = pd.concat([refil_df, atlas_df, bdloc_df, bdloc_voie_df])
 else:
     poi_result_df = pd.concat([refil_df, atlas_df, bdloc_df])
