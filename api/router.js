@@ -48,14 +48,14 @@ export default async function createRouter(options = {}) {
   /****************************** DEBUT fake Esri GeocodeServer *****************************************************/
   /***************************** Esri geocoder fake arcgis server info */
   const georepInfoHandle = async (req, res) => {
-    res.send(esri_responses.info)
+    res.type('json').send(esri_responses.info)
   }
   router.get('/arcgis/rest/info', w(georepInfoHandle));
   router.get('/rest/info', w(georepInfoHandle));
 
   /** Esri geocoder fake arcgis server rest/services */
   const georepServicesHandle = async (req, res) => {
-    res.send(esri_responses.services)
+    res.type('json').send(esri_responses.services)
   }
   router.get('/arcgis/rest/services', w(georepServicesHandle));
   router.get('/rest/services', w(georepServicesHandle));
@@ -63,7 +63,7 @@ export default async function createRouter(options = {}) {
 
   /***************************** Esri geocoder fake service */
   const georepGeocodeServiceHandler = async (req, res) => {
-    res.send(esri_responses.service)
+    res.type('json').send(esri_responses.service)
   }
   router.get('/arcgis/rest/services/localisations/GeocodeServer', w(georepGeocodeServiceHandler));
   router.get('/rest/services/localisations/GeocodeServer', w(georepGeocodeServiceHandler));
@@ -91,7 +91,7 @@ export default async function createRouter(options = {}) {
       params.indexes = ['poi'];
     }
     const results = await search(params, {indexes});
-    res.send(searchResult2Candidates(results, outWkid));
+    res.type('json').send(searchResult2Candidates(results, outWkid));
   }
   router.get('/arcgis/rest/services/localisations/GeocodeServer/findAddressCandidates', w(georepServiceFindAddressCandidatesHandler));
   router.get('/rest/services/localisations/GeocodeServer/findAddressCandidates', w(georepServiceFindAddressCandidatesHandler));
@@ -120,9 +120,9 @@ export default async function createRouter(options = {}) {
 
     try {
       const results = await autocomplete(params, {indexes})
-      res.send(searchResult2Suggests(results))
+      res.type('json').send(searchResult2Suggests(results))
     } catch (error) {
-      res.send({
+      res.type('json').send({
         status: 'Error',
         error: error.message
       })
@@ -155,7 +155,7 @@ export default async function createRouter(options = {}) {
       params.indexes = ['poi'];
     }
     const results = await reverse(params, {indexes});
-    res.send(reverseResult2Adress(results, outWkid));
+    res.type('json').send(reverseResult2Adress(results, outWkid));
   }
   router.get('/arcgis/rest/services/localisations/GeocodeServer/reverseGeocode', w(georepServiceReverseHandler));
   router.get('rest/services/localisations/GeocodeServer/reverseGeocode', w(georepServiceReverseHandler));

@@ -687,7 +687,7 @@ export const esri_responses = {
         length: 100,
       },
       {
-        name: "poscode",
+        name: "postcode",
         type: "esriFieldTypeString",
         alias: "Code postal",
         required: false,

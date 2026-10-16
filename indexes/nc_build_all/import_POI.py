@@ -27,10 +27,11 @@ logger = logging.getLogger('ncadresse')
 
 logger.info(f"Dossier d'export de données : {output_folder}")
 
-category_df = pd.read_excel(os.path.join(CWD,"lib_court_to_category.xlsx"))
+# category_df = pd.read_excel(os.path.join(CWD,"lib_court_to_category.xlsx"))
 category_clean = pd.read_excel(os.path.join(CWD,"clean_cat.xlsx"))
-type_df = pd.read_excel(os.path.join(CWD,"lib_court_to_type.xlsx"))
+# type_df = pd.read_excel(os.path.join(CWD,"lib_court_to_type.xlsx"))
 type_clean = pd.read_excel(os.path.join(CWD,"clean_type.xlsx"))
+serail_atlas_matchings_df = pd.read_excel(os.path.join(CWD,"serail_atlas_matchings.xlsx"))
 
 
 # URL du service REST
@@ -39,14 +40,6 @@ bdloc_fs_url = os.environ.get(
     "BDLOC_FEATURE_SERVICE_LAYER",
     "https://services1.arcgis.com/TZcrgU6CIbqWt9Qv/ArcGIS/rest/services/BDLOC/FeatureServer/13"
 )
-categories_to_remove = os.environ.get(
-    "BDLOC_POI_CATEGORIES_TO_REMOVE",
-    ",".join(['AGRIC', 'DECHET', 'ENERGIE', 'EQ_SPORT', 'PARC', 'SITE', 'TOURISME'][:2])
-).split(",")
-types_to_remove = os.environ.get(
-    "BDLOC_POI_TYPES_TO_REMOVE",
-    ",".join(['Biblio', 'Cculturel', 'Cinema', 'Mon', 'Musee', 'Theatre', 'Hydronyme', 'Oronyme', 'Cfuneraire', 'Cim', 'Pharma', 'Paljustice', 'Pol', 'Tribun', 'Arretbus', 'Cmaint', 'Heliport', 'Quai'][:2])
-).split(",")
 
 # Centres voies BD LOC
 bdloc_voies_fs_url = os.environ.get(
@@ -88,9 +81,12 @@ atlas_df['lat'] = atlas_df['lat'].astype(float)
 
 atlas_df['ident'] = atlas_df['ident'].astype(str) 
 
+# Recup des category et type selon les matchins
+atlas_df = atlas_df.merge(serail_atlas_matchings_df, on="theme3", how="inner")
+
 logger.info("Nettoyage et renommage des champs...")
 atlas_df["lib_ville"] = atlas_df["lib_norme"]
-atlas_col_to_keep = ["lib_ville", "lib_norme","lib_court","apparten","lon","lat", "ident"]
+atlas_col_to_keep = ["lib_ville", "lib_norme","lib_court","apparten","lon","lat", "ident", "category", "type"]
 atlas_df = atlas_df[atlas_col_to_keep]
 
 logger.info("Calcul du code commune (depuis libelle)...")
@@ -99,8 +95,9 @@ atlas_df = atlas_df.rename(columns=com_name)
 myutils.df_compute_code_comm(atlas_df)
 
 # recupérer champ category et type à partir d'un merge
-atlas_df = atlas_df.merge(category_df, on="lib_court", how="inner")
-atlas_df = atlas_df.merge(type_df, on="lib_court", how="inner")
+
+# atlas_df = atlas_df.merge(category_df, on="lib_court", how="inner")
+# atlas_df = atlas_df.merge(type_df, on="lib_court", how="inner")
 
 rename_atlas = {
     "lib_ville": "name",
@@ -151,28 +148,29 @@ refil_df = refil_df[reclass]
 
 #################### BDLOC #################
 logger.info("----------- BD LOC -------------")
-logger.info("Suppression des données SERAIL...")
-bdloc_df = bdloc_df[bdloc_df.origine !="SERAIL"]
-bdloc_df = bdloc_df[~bdloc_df["categorie"].isin(categories_to_remove)]
-bdloc_df = bdloc_df[~bdloc_df["type"].isin(types_to_remove)]
+logger.info("Conservation des données DITTT uniquement...")
+bdloc_df = bdloc_df[bdloc_df.origine =="DITTT"]
 
 # logger.info("Géométrie vers X et Y...")
 bdloc_df["X"] = bdloc_df.geometry.x
 bdloc_df["Y"] = bdloc_df.geometry.y
 
+logger.info("Calcul du code commune (depuis commune)...")
+myutils.df_compute_code_comm(bdloc_df, "commune")
+
 # Calcul code_comm depuis commune (libelle)
-logger.info("Calcul du libelle commune (depuis code_com)...")
-myutils.df_compute_commune(bdloc_df)
+logger.info("Calcul du libelle commune (depuis code_comm)...")
+myutils.df_compute_commune(bdloc_df, "code_comm")
 
 logger.info("Nettoyage et renommage des champs...")
-column_to_keep = ["libelle", "libel_abr", "categorie", "code_com", "commune", "type", "X", "Y", "globalid"]
+column_to_keep = ["libelle", "libel_abr", "categorie", "code_comm", "commune", "type", "X", "Y", "globalid"]
 bdloc_df = bdloc_df[column_to_keep]
 # Champs à renommer
 renommage_champs = {
     "libelle": "name",
     "libel_abr": "toponym",
     "categorie": "category",
-    "code_com": "citycode",
+    "code_comm": "citycode",
     "globalid": "id",
     "commune": "city",
     "X": "lon",
@@ -185,46 +183,58 @@ bdloc_df = bdloc_df[reclass]
 
 #################### BDLOC #################
 logger.info("----------- BD LOC - centre voie -------------")
-logger.info("Suppression des données SERAIL...")
 
 # logger.info("Géométrie vers X et Y...")
-bdloc_voie_df["X"] = bdloc_voie_df.geometry.x
-bdloc_voie_df["Y"] = bdloc_voie_df.geometry.y
+if bdloc_voie_df is not None:
+    bdloc_voie_df["X"] = bdloc_voie_df.geometry.x
+    bdloc_voie_df["Y"] = bdloc_voie_df.geometry.y
 
-# Calcul code_comm depuis commune (libelle)
-logger.info("Calcul du libelle commune (depuis code_com)...")
-myutils.df_compute_commune(bdloc_voie_df)
+    logger.info("Calcul du code commune (depuis commune)...")
+    myutils.df_compute_code_comm(bdloc_voie_df, "commune")
 
-logger.info("Nettoyage et renommage des champs...")
-column_to_keep = ["libelle", "libel_abr", "categorie", "code_com", "commune", "type", "X", "Y", "globalid"]
-bdloc_voie_df = bdloc_voie_df[column_to_keep]
-# Champs à renommer
-renommage_champs = {
-    "libelle": "name",
-    "libel_abr": "toponym",
-    "categorie": "category",
-    "code_com": "citycode",
-    "globalid": "id",
-    "commune": "city",
-    "X": "lon",
-    "Y": "lat",
-    "type": "type"
-}
-bdloc_voie_df = bdloc_voie_df.rename(columns=renommage_champs)
-bdloc_voie_df["source"] = 'BDLOC DITTT'
-bdloc_voie_df["id"] = 'BDLOC_' + bdloc_voie_df["id"]
-bdloc_voie_df = bdloc_voie_df[reclass]
+
+    # Calcul code_comm depuis commune (libelle)
+    logger.info("Calcul du libelle commune (depuis code_comm)...")
+    myutils.df_compute_commune(bdloc_voie_df, "code_comm")
+
+    logger.info("Nettoyage et renommage des champs...")
+    column_to_keep = ["libelle", "libel_abr", "categorie", "code_comm", "commune", "type", "X", "Y", "globalid"]
+    bdloc_voie_df = bdloc_voie_df[column_to_keep]
+    # Champs à renommer
+    renommage_champs = {
+        "libelle": "name",
+        "libel_abr": "toponym",
+        "categorie": "category",
+        "code_comm": "citycode",
+        "globalid": "id",
+        "commune": "city",
+        "X": "lon",
+        "Y": "lat",
+        "type": "type"
+    }
+    bdloc_voie_df = bdloc_voie_df.rename(columns=renommage_champs)
+    bdloc_voie_df["source"] = 'BDLOC DITTT'
+    bdloc_voie_df["id"] = 'BDLOC_' + bdloc_voie_df["id"]
+    bdloc_voie_df = bdloc_voie_df[reclass]
+else:
+    logger.error("Aucun centre de voie disponible/")
 
 ############ FUSION #########################
 logger.info("----------- FUSION -------------")
 logger.info("Combinaison des 3 sources...")
-poi_result_df = pd.concat([refil_df, atlas_df, bdloc_df, bdloc_voie_df])
+if bdloc_voie_df is not None and not bdloc_voie_df.empty:
+    poi_result_df = pd.concat([refil_df, atlas_df, bdloc_df, bdloc_voie_df])
+else:
+    poi_result_df = pd.concat([refil_df, atlas_df, bdloc_df])
 
 # Ajouter labelle propre pour category et type
-poi_result_df = poi_result_df.merge(category_clean, on="category", how="inner")
-poi_result_df = poi_result_df.merge(type_clean, on="type", how="inner")
-
+poi_result_df = poi_result_df.merge(category_clean, on="category", how="left")
+poi_result_df = poi_result_df.merge(type_clean, on="type", how="left")
+# Pour les non réussi, on remet la category ou le type non propre
+poi_result_df["complet_cat"] = poi_result_df['complet_cat'].fillna(poi_result_df['category'])
+poi_result_df["type_complet"] = poi_result_df['type_complet'].fillna(poi_result_df['type'])
 # Si pas de complet_cat, on met valeur par defaut LOCALISATION
+poi_result_df["complet_cat"] = poi_result_df["complet_cat"].fillna("LOCALISATION")
 
 # clean cat et type label
 name_clean = {
@@ -235,6 +245,10 @@ name_clean = {
 }
 poi_result_df = poi_result_df.rename(columns=name_clean)
 poi_result_df = poi_result_df[reclass]
+
+# Si name est vide, on y injecte toponym (exemple centre voie C.R.22 sans name)
+poi_result_df["name"] = poi_result_df["name"].fillna(poi_result_df["toponym"])
+poi_result_df["toponym"] = poi_result_df["toponym"].fillna(poi_result_df["name"])
 
 # Export en ndjson
 logger.info("Export en ndjson...")
