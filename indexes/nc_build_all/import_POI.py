@@ -217,15 +217,12 @@ if bdloc_voie_df is not None:
     bdloc_voie_df["id"] = 'BDLOC_' + bdloc_voie_df["id"]
     bdloc_voie_df = bdloc_voie_df[reclass]
 else:
-    logger.error("Aucun centre de voie disponible/")
+    logger.error("Aucun centre de voie disponible")
 
 ############ FUSION #########################
 logger.info("----------- FUSION -------------")
 logger.info("Combinaison des 3 sources...")
-if bdloc_voie_df is not None and not bdloc_voie_df.empty:
-    poi_result_df = pd.concat([refil_df, atlas_df, bdloc_df, bdloc_voie_df])
-else:
-    poi_result_df = pd.concat([refil_df, atlas_df, bdloc_df])
+poi_result_df = pd.concat([refil_df, atlas_df, bdloc_df, bdloc_voie_df])
 
 # Ajouter labelle propre pour category et type
 poi_result_df = poi_result_df.merge(category_clean, on="category", how="left")
