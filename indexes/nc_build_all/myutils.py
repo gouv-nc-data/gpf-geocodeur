@@ -99,13 +99,13 @@ def get_df_from_xlsx_url(xlsx_url, filepath=None):
 def _compute_code_commune(value):
     if not value:
         return None
-    value = value.upper().replace("-", "").replace("_", "")
+    value = value.upper().replace("-", "").replace("_", "").replace(" ", "")
     value_code = None
     if value.isdigit():
         value_code = int(value[-2:])
     for (code, libelle) in COMMUNES:
         short_code = int(code[-2:])
-        libelle = libelle.upper().replace("-", "").replace("_", "")
+        libelle = libelle.upper().replace("-", "").replace("_", "").replace(" ", "")
         if code == value or libelle == value or value_code == short_code:
             return code
         
