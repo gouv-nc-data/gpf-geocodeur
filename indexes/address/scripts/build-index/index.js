@@ -4,9 +4,8 @@ import 'dotenv/config.js'
 
 import process from 'node:process'
 import path from 'node:path'
-import {createReadStream} from 'node:fs'
+import {Readable} from 'node:stream'
 import {rm} from 'node:fs/promises'
-import {createGunzip} from 'node:zlib'
 
 import logger from '../../../../lib/logger.js'
 import {downloadFile} from '../../../../lib/download.js'
@@ -14,7 +13,7 @@ import {createIndexer} from '../../../../lib/spatial-index/indexer.js'
 import {createImporter} from '../../../../lib/addok/importer.js'
 import {computeDepartements} from '../../../../lib/cli.js'
 import {ADDRESS_DATA_PATH, ADDRESS_INDEX_PATH, ADDRESS_INDEX_MDB_BASE_PATH} from '../../util/paths.js'
-import {extractFeatures} from './extract.js'
+import {extractFeatures, extractAddokRows} from './extract.js'
 
 const {BAN_ADDOK_URL} = process.env
 
@@ -93,9 +92,8 @@ try {
     await indexer.writeFeatures(extractFeatures(filePath))
 
     logger.log('Indexing into addok')
-    await addokImporter.batchImport(
-      createReadStream(filePath).pipe(createGunzip())
-    )
+    // Lignes transformées (position médiane des voies), pas le fichier brut
+    await addokImporter.batchImport(Readable.from(extractAddokRows(filePath)))
   }
 
   logger.log('Finishing spatial indexation computation')

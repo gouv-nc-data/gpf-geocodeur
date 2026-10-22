@@ -77,10 +77,11 @@ def get_geodf_from_featureservice(feature_layer_url, limit=None):
         else:
             raise Exception("Erreur lors de la récupération des données :", response.status_code)
 
+    if len(all_features) ==0:
+        return None
     return gpd.GeoDataFrame.from_features(all_features)
 
 def get_df_from_xlsx_url(xlsx_url, filepath=None):
-    response = requests.get(xlsx_url)
     if not filepath:
         filepath = "tmp_downloaded_xlsx.xlsx"
     if not filepath.endswith(".xlsx"):
@@ -98,11 +99,16 @@ def get_df_from_xlsx_url(xlsx_url, filepath=None):
 def _compute_code_commune(value):
     if not value:
         return None
-    value = value.upper().replace("-", "").replace("_", "")
+    value = value.upper().replace("-", "").replace("_", "").replace(" ", "")
+    value_code = None
+    if value.isdigit():
+        value_code = int(value[-2:])
     for (code, libelle) in COMMUNES:
-        libelle = libelle.upper().replace("-", "").replace("_", "")
-        if code == value or libelle == value:
+        short_code = int(code[-2:])
+        libelle = libelle.upper().replace("-", "").replace("_", "").replace(" ", "")
+        if code == value or libelle == value or value_code == short_code:
             return code
+        
     return None
 
 
